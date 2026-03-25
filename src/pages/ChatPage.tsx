@@ -50,7 +50,6 @@ export function ChatPage() {
         />
         <main className="flex flex-1 flex-col overflow-hidden bg-c3-bg">
           <ChatInterface
-            key={threadId ?? "new"}
             threadId={threadId}
             onThreadCreated={handleThreadCreated}
           />

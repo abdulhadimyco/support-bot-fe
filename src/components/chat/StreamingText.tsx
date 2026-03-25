@@ -48,24 +48,24 @@ function parseContent(raw: string): ParsedSegment[] {
 }
 
 function ThinkingBlock({ content }: { content: string }) {
-  const [expanded, setExpanded] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
     <div className="my-2 rounded-md border border-c3-border/50 bg-c3-surface2/50">
       <button
-        onClick={() => setExpanded(!expanded)}
+        onClick={() => setCollapsed(!collapsed)}
         className="flex w-full items-center gap-2 px-3 py-2 text-xs text-c3-text-muted hover:text-c3-text-dim transition-colors"
       >
         <Brain className="h-3.5 w-3.5 text-c3-accent/60" />
         <span className="font-medium">Thinking</span>
-        {expanded ? (
-          <ChevronDown className="ml-auto h-3.5 w-3.5" />
-        ) : (
+        {collapsed ? (
           <ChevronRight className="ml-auto h-3.5 w-3.5" />
+        ) : (
+          <ChevronDown className="ml-auto h-3.5 w-3.5" />
         )}
       </button>
-      {expanded && (
-        <div className="border-t border-c3-border/30 px-3 py-2 text-xs leading-relaxed text-c3-text-muted/80 whitespace-pre-wrap font-sans">
+      {!collapsed && (
+        <div className="border-t border-c3-border/30 px-3 py-2 text-xs leading-relaxed text-c3-text-muted/80 whitespace-pre-wrap font-sans max-h-48 overflow-y-auto">
           {content}
         </div>
       )}

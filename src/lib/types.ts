@@ -60,8 +60,6 @@ export interface Message {
 export interface MessageMetadata {
   model?: string;
   provider?: string;
-  inputTokens?: number;
-  outputTokens?: number;
   elapsedMs?: number;
 }
 
