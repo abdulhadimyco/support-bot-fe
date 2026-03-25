@@ -1,4 +1,6 @@
-import { FileText, LogOut, Settings, PanelLeft } from "lucide-react";
+import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { Download, LogOut, Settings, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,11 +10,37 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useAuth } from "@/lib/auth";
+import { api } from "@/lib/api-client";
+import type { Report } from "@/lib/types";
 
 
 export function Header() {
   const { agent, logout } = useAuth();
+  const { threadId } = useParams<{ threadId?: string }>();
+  const [downloading, setDownloading] = useState(false);
+
+  async function handleDownloadReport() {
+    if (!threadId || downloading) return;
+    setDownloading(true);
+    try {
+      const report = await api.post<Report>(`/api/threads/${threadId}/report`);
+      window.open(
+        `${import.meta.env.VITE_API_URL || ""}/api/reports/${report.shareToken}/pdf`,
+        "_blank",
+      );
+    } catch {
+      // silently fail – the user will see no PDF tab open
+    } finally {
+      setDownloading(false);
+    }
+  }
 
   return (
     <header className="flex h-14 items-center justify-between border-b border-c3-border bg-c3-surface px-4">
@@ -33,59 +61,81 @@ export function Header() {
         </Badge>
       </div>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger>
-          <Button
-            variant="ghost"
-            className="flex items-center gap-2 text-c3-text-muted hover:text-c3-text"
+      <div className="flex items-center gap-2">
+        {threadId && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger >
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleDownloadReport}
+                  disabled={downloading}
+                  className="h-8 w-8 text-c3-text-muted hover:text-c3-text"
+                >
+                  {downloading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Download className="h-4 w-4" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                Download Report
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Button
+              variant="ghost"
+              className="flex items-center gap-2 text-c3-text-muted hover:text-c3-text"
+            >
+              {agent && (
+                <div className="flex h-6 w-6 items-center justify-center rounded-md bg-c3-accent/15 font-mono text-[9px] font-semibold text-c3-accent">
+                  {agent.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase()}
+                </div>
+              )}
+              <span className="hidden font-mono text-xs sm:inline">
+                {agent?.name}
+              </span>
+              <Settings className="h-3.5 w-3.5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="end"
+            className="w-48 border-c3-border bg-c3-surface"
           >
             {agent && (
-              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-c3-accent/15 font-mono text-[9px] font-semibold text-c3-accent">
-                {agent.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")
-                  .slice(0, 2)
-                  .toUpperCase()}
-              </div>
+              <>
+                <div className="px-2 py-1.5">
+                  <div className="text-xs font-medium text-c3-text">
+                    {agent.name}
+                  </div>
+                  <div className="font-mono text-[10px] text-c3-text-muted">
+                    {agent.email}
+                  </div>
+                </div>
+                <DropdownMenuSeparator className="bg-c3-border" />
+              </>
             )}
-            <span className="hidden font-mono text-xs sm:inline">
-              {agent?.name}
-            </span>
-            <Settings className="h-3.5 w-3.5" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="end"
-          className="w-48 border-c3-border bg-c3-surface"
-        >
-          {agent && (
-            <>
-              <div className="px-2 py-1.5">
-                <div className="text-xs font-medium text-c3-text">
-                  {agent.name}
-                </div>
-                <div className="font-mono text-[10px] text-c3-text-muted">
-                  {agent.email}
-                </div>
-              </div>
-              <DropdownMenuSeparator className="bg-c3-border" />
-            </>
-          )}
-          <DropdownMenuItem className="text-xs text-c3-text-dim focus:bg-c3-surface2 focus:text-c3-text">
-            <FileText className="mr-2 h-3.5 w-3.5" />
-            Generate Report
-          </DropdownMenuItem>
-          <DropdownMenuSeparator className="bg-c3-border" />
-          <DropdownMenuItem
-            onClick={logout}
-            className="text-xs text-c3-danger focus:bg-c3-danger/10 focus:text-c3-danger"
-          >
-            <LogOut className="mr-2 h-3.5 w-3.5" />
-            Logout
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            <DropdownMenuItem
+              onClick={logout}
+              className="text-xs text-c3-danger focus:bg-c3-danger/10 focus:text-c3-danger"
+            >
+              <LogOut className="mr-2 h-3.5 w-3.5" />
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </header>
   );
 }

@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import {
   Plus,
   PanelLeftClose,
@@ -10,6 +11,7 @@ import {
   Trash2,
   Check,
   X,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,41 +22,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { api } from "@/lib/api-client";
 import type { Thread } from "@/lib/types";
-
-// TODO: Replace with real API call when backend is ready
-const MOCK_THREADS: Thread[] = [
-  {
-    id: "t1",
-    agentId: "agent-001",
-    customerEmail: "john@example.com",
-    customerName: "John Doe",
-    summary: "Payment not reflecting after JazzCash transaction",
-    status: "active",
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
-    updatedAt: new Date(Date.now() - 1800000).toISOString(),
-  },
-  {
-    id: "t2",
-    agentId: "agent-001",
-    customerEmail: "sara@example.com",
-    customerName: "Sara Ahmed",
-    summary: "Cannot access premium content after renewal",
-    status: "active",
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-    updatedAt: new Date(Date.now() - 7200000).toISOString(),
-  },
-  {
-    id: "t3",
-    agentId: "agent-001",
-    customerEmail: "ali@example.com",
-    customerName: "Ali Khan",
-    summary: "Live stream buffering on mobile app",
-    status: "closed",
-    createdAt: new Date(Date.now() - 172800000).toISOString(),
-    updatedAt: new Date(Date.now() - 86400000).toISOString(),
-  },
-];
 
 interface ChatHistoryProps {
   isOpen: boolean;
@@ -62,6 +31,15 @@ interface ChatHistoryProps {
   onNewThread: () => void;
   activeThreadId: string | null;
   addThreadRef?: React.RefObject<((id: string, summary: string) => void) | null>;
+}
+
+function ThreadSkeleton() {
+  return (
+    <div className="flex items-center gap-2 rounded-md px-2 py-1.5 animate-pulse">
+      <div className="h-3.5 w-3.5 rounded bg-c3-surface2" />
+      <div className="h-3 flex-1 rounded bg-c3-surface2" />
+    </div>
+  );
 }
 
 export function ChatHistory({
@@ -72,27 +50,44 @@ export function ChatHistory({
   addThreadRef,
 }: ChatHistoryProps) {
   const navigate = useNavigate();
-  const [threads, setThreads] = useState<Thread[]>(MOCK_THREADS);
+  const [threads, setThreads] = useState<Thread[]>([]);
+  const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
+
+  // Fetch threads from API on mount
+  useEffect(() => {
+    setLoading(true);
+    api
+      .get<{ data: Thread[] }>("/api/threads")
+      .then((res) => setThreads(res.data))
+      .catch((err) => {
+        console.error("Failed to fetch threads:", err);
+        toast.error("Failed to load conversations");
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   // Expose addThread so ChatPage can push new threads into the sidebar
   if (addThreadRef) {
     addThreadRef.current = (id: string, summary: string) => {
       const now = new Date().toISOString();
-      setThreads((prev) => [
-        {
-          id,
-          agentId: "",
-          customerEmail: null,
-          customerName: null,
-          summary,
-          status: "active",
-          createdAt: now,
-          updatedAt: now,
-        },
-        ...prev,
-      ]);
+      setThreads((prev) => {
+        if (prev.some((t) => t.id === id)) return prev;
+        return [
+          {
+            id,
+            userId: "",
+            customerEmail: null,
+            customerName: null,
+            summary,
+            status: "active",
+            createdAt: now,
+            updatedAt: now,
+          },
+          ...prev,
+        ];
+      });
     };
   }
 
@@ -111,15 +106,24 @@ export function ChatHistory({
     setEditValue(thread.summary ?? "");
   }
 
-  function confirmRename() {
-    if (!editingId) return;
+  async function confirmRename() {
+    if (!editingId || !editValue.trim()) return;
+    const title = editValue.trim();
+
+    // Optimistic update
     setThreads((prev) =>
       prev.map((t) =>
-        t.id === editingId ? { ...t, summary: editValue.trim() || t.summary } : t,
+        t.id === editingId ? { ...t, summary: title } : t,
       ),
     );
     setEditingId(null);
     setEditValue("");
+
+    try {
+      await api.patch(`/api/threads/${editingId}`, { title });
+    } catch {
+      toast.error("Failed to rename conversation");
+    }
   }
 
   function cancelRename() {
@@ -127,14 +131,21 @@ export function ChatHistory({
     setEditValue("");
   }
 
-  function deleteThread(id: string) {
+  async function deleteThread(id: string) {
+    // Optimistic update
     setThreads((prev) => prev.filter((t) => t.id !== id));
     if (activeThreadId === id) {
       onNewThread();
     }
+
+    try {
+      await api.delete(`/api/threads/${id}`);
+    } catch {
+      toast.error("Failed to delete conversation");
+    }
   }
 
-  // Collapsed state — just show toggle button
+  // Collapsed state
   if (!isOpen) {
     return (
       <aside className="flex w-12 flex-col items-center border-r border-c3-border bg-c3-surface py-3">
@@ -191,7 +202,13 @@ export function ChatHistory({
       {/* Thread list */}
       <ScrollArea className="min-h-0 flex-1">
         <div className="p-2">
-          {threads.length === 0 ? (
+          {loading ? (
+            <div className="space-y-1">
+              <ThreadSkeleton />
+              <ThreadSkeleton />
+              <ThreadSkeleton />
+            </div>
+          ) : threads.length === 0 ? (
             <div className="py-8 text-center text-xs text-c3-text-muted">
               No conversations yet
             </div>

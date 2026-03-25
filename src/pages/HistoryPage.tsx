@@ -13,7 +13,7 @@ import type { Thread } from "@/lib/types";
 const MOCK_THREADS: Thread[] = [
   {
     id: "t1",
-    agentId: "agent-001",
+    userId: "",
     customerEmail: "john@example.com",
     customerName: "John Doe",
     summary: "Payment not reflecting after JazzCash transaction",
@@ -23,7 +23,7 @@ const MOCK_THREADS: Thread[] = [
   },
   {
     id: "t2",
-    agentId: "agent-001",
+    userId: "",
     customerEmail: "sara@example.com",
     customerName: "Sara Ahmed",
     summary: "Cannot access premium content after renewal",
@@ -33,7 +33,7 @@ const MOCK_THREADS: Thread[] = [
   },
   {
     id: "t3",
-    agentId: "agent-001",
+    userId: "",
     customerEmail: "ali@example.com",
     customerName: "Ali Khan",
     summary: "Live stream buffering on mobile app",

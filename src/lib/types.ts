@@ -39,7 +39,7 @@ export interface LoginResponse {
 
 export interface Thread {
   id: string;
-  agentId: string;
+  userId: string;
   customerEmail: string | null;
   customerName: string | null;
   summary: string | null;

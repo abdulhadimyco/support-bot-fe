@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "sonner";
 import { useAuth } from "@/lib/auth";
 import { LoginPage } from "@/pages/LoginPage";
 import { ChatPage } from "@/pages/ChatPage";
@@ -11,6 +12,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
+    <>
+    <Toaster theme="dark" position="top-right" richColors />
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route
@@ -24,5 +27,6 @@ export default function App() {
       <Route path="/report/:token" element={<ReportPage />} />
       <Route path="*" element={<Navigate to="/chat" replace />} />
     </Routes>
+    </>
   );
 }
