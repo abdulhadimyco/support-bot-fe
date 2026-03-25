@@ -4,12 +4,19 @@ const BASE_URL = import.meta.env.VITE_API_URL || "";
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
+  const headers: Record<string, string> = {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+
+  if (options.body) {
+    headers["Content-Type"] = "application/json";
+  }
+
   const res = await fetch(`${BASE_URL}${path}`, {
     ...options,
     headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
+      ...headers,
+      ...(options.headers as Record<string, string>),
     },
   });
 

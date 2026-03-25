@@ -11,9 +11,10 @@ export function ChatPage() {
     paramThreadId ?? null,
   );
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const addThreadRef = useRef<((id: string, summary: string) => void) | null>(null);
+  const addThreadRef = useRef<((id: string, summary: string) => void) | null>(
+    null,
+  );
 
-  // Sync threadId when URL params change (e.g. clicking a sidebar thread)
   useEffect(() => {
     setThreadId(paramThreadId ?? null);
   }, [paramThreadId]);
@@ -49,6 +50,7 @@ export function ChatPage() {
         />
         <main className="flex flex-1 flex-col overflow-hidden bg-c3-bg">
           <ChatInterface
+            key={threadId ?? "new"}
             threadId={threadId}
             onThreadCreated={handleThreadCreated}
           />

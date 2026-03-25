@@ -26,6 +26,7 @@ export function ChatInterface({
   const bottomRef = useRef<HTMLDivElement>(null);
   const [input, setInput] = useState("");
   const [attachment, setAttachment] = useState<File | null>(null);
+  const [loadingThread, setLoadingThread] = useState(!!threadId);
   const threadIdRef = useRef(threadId);
   const isNewThreadRef = useRef(false);
   const userAtBottomRef = useRef(true);
@@ -56,8 +57,6 @@ export function ChatInterface({
     },
   });
 
-  // Load existing thread messages when threadId changes
-  // Skip if we just created this thread (messages are already in useChat state)
   useEffect(() => {
     if (isNewThreadRef.current) {
       isNewThreadRef.current = false;
@@ -65,6 +64,7 @@ export function ChatInterface({
     }
 
     if (threadId) {
+      setLoadingThread(true);
       api
         .get<{
           data: {
@@ -86,15 +86,16 @@ export function ChatInterface({
         .catch((err) => {
           console.error("Failed to load thread messages:", err);
           setMessages([]);
-        });
+        })
+        .finally(() => setLoadingThread(false));
     } else {
+      setLoadingThread(false);
       setMessages([]);
     }
     setInput("");
     setAttachment(null);
   }, [threadId, setMessages]);
 
-  // Track if user is scrolled near the bottom
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -109,14 +110,12 @@ export function ChatInterface({
     return () => el.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Auto-scroll only if user is at the bottom
   useEffect(() => {
     if (userAtBottomRef.current) {
       bottomRef.current?.scrollIntoView({ behavior: "instant" });
     }
   }, [messages]);
 
-  // Show errors as toasts
   useEffect(() => {
     if (error) {
       toast.error(error.message || "Something went wrong");
@@ -139,7 +138,6 @@ export function ChatInterface({
       setInput("");
       setAttachment(null);
 
-      // If no thread yet, create one first via API
       if (!threadIdRef.current) {
         try {
           const res = await api.post<{ data: Thread }>("/api/threads", {
@@ -147,7 +145,6 @@ export function ChatInterface({
           });
           const newThreadId = res.data.id;
           threadIdRef.current = newThreadId;
-          // Mark as new so the useEffect doesn't wipe messages
           isNewThreadRef.current = true;
           onThreadCreated?.(newThreadId, text.trim().slice(0, 80));
         } catch {
@@ -156,7 +153,6 @@ export function ChatInterface({
         }
       }
 
-      // Scroll to bottom when user sends a message
       userAtBottomRef.current = true;
       await sendMessage({ text: text.trim() });
     },
@@ -174,6 +170,7 @@ export function ChatInterface({
   }
 
   const hasMessages = messages.length > 0;
+  const isExistingThread = !!threadId;
 
   function getMessageText(msg: (typeof messages)[number]): string {
     if (msg.parts) {
@@ -196,11 +193,23 @@ export function ChatInterface({
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      {/* Scrollable message area — plain div, not ScrollArea */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
         <div className="flex min-h-full flex-col">
-          {!hasMessages ? (
+          {loadingThread ? (
+            <div className="flex flex-1 items-center justify-center">
+              <div className="flex flex-col items-center gap-3 text-c3-text-muted">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-c3-text-muted border-t-c3-accent" />
+                <span className="text-xs">Loading conversation...</span>
+              </div>
+            </div>
+          ) : !hasMessages && !isExistingThread ? (
             <WelcomeScreen onSuggestion={handleSuggestion} />
+          ) : !hasMessages && isExistingThread ? (
+            <div className="flex flex-1 items-center justify-center">
+              <span className="text-sm text-c3-text-muted">
+                No messages in this conversation
+              </span>
+            </div>
           ) : (
             <div className="flex-1 py-4">
               {messages.map((msg) => (
