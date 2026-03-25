@@ -25,6 +25,26 @@ function nextId() {
   return `msg-${++msgCounter}-${Date.now()}`;
 }
 
+// TODO: Replace with real API when backend is ready
+const MOCK_THREAD_MESSAGES: Record<string, ChatMessage[]> = {
+  t1: [
+    { id: "t1-1", role: "user", content: "Customer john@example.com says his JazzCash payment went through but isn't reflecting in the system." },
+    { id: "t1-2", role: "assistant", content: "I found the customer profile. Let me pull up their details...\n\nThe customer **john@example.com** has an active Premium subscription, signed up 4 months ago. Let me check the payment history." },
+    { id: "t1-3", role: "user", content: "Check payment history for john@example.com" },
+    { id: "t1-4", role: "assistant", content: "Here's the payment timeline for this customer:\n\n- **PKR 1,200** — Mar 15, 2026 — Completed (JazzCash)\n- **PKR 1,200** — Feb 15, 2026 — Completed (JazzCash)\n- **PKR 1,200** — Jan 15, 2026 — Completed (EasyPaisa)\n\nAll 3 payments were successful. Total: PKR 3,600. The latest JazzCash payment on Mar 15 shows as **Completed** on our end. It may be a display delay on the customer's app. Would you like me to trigger a sync or escalate?" },
+  ],
+  t2: [
+    { id: "t2-1", role: "user", content: "Sara Ahmed (sara@example.com) renewed her subscription but can't access premium content." },
+    { id: "t2-2", role: "assistant", content: "Let me look up Sara Ahmed's account...\n\n**Sara Ahmed** — sara@example.com\n- Subscription: Premium (renewed 2 days ago)\n- Status: **Active**\n- Payment: PKR 1,200 via EasyPaisa — Completed\n\nThe subscription is active and payment went through. This might be a cache issue. Would you like me to check her active sessions or force a content refresh?" },
+  ],
+  t3: [
+    { id: "t3-1", role: "user", content: "Ali Khan is reporting live stream buffering on the mobile app." },
+    { id: "t3-2", role: "assistant", content: "Let me check Ali Khan's watch activity and device info...\n\n**Ali Khan** — ali@example.com\n- Device: iPhone 13, iOS 17.2\n- App version: 3.4.1\n- Network: 4G (average 8 Mbps)\n\nLast 3 live streams all show buffering events. This matches a known issue tracked in **MCSB-135**. The fix is scheduled for the next app release (v3.5.0).\n\nWould you like me to add Ali's case to the Jira ticket?" },
+    { id: "t3-3", role: "user", content: "Yes, add his case to the ticket and let him know." },
+    { id: "t3-4", role: "assistant", content: "Done! I've added Ali Khan's case to **MCSB-135** with his device details and buffering logs.\n\nSuggested response to customer:\n> *Hi Ali, we're aware of the buffering issue on the mobile app and our team is actively working on a fix in the next update (v3.5.0). We've added your case to our tracking. Apologies for the inconvenience!*\n\nThis thread has been marked as **closed** since it's a known issue with a fix in progress." },
+  ],
+};
+
 // TODO: Replace this mock with real useChat + backend transport when BE is ready.
 // For now, assistant echoes back a canned response so the UI is testable.
 function mockAssistantReply(userText: string): string {
@@ -43,7 +63,7 @@ function mockAssistantReply(userText: string): string {
 }
 
 export function ChatInterface({
-  threadId: _threadId,
+  threadId,
   onThreadCreated: _onThreadCreated,
 }: ChatInterfaceProps) {
   const { agent } = useAuth();
@@ -52,6 +72,18 @@ export function ChatInterface({
   const [attachment, setAttachment] = useState<File | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
+
+  // Load mock messages when threadId changes
+  useEffect(() => {
+    if (threadId && MOCK_THREAD_MESSAGES[threadId]) {
+      setMessages(MOCK_THREAD_MESSAGES[threadId]);
+    } else {
+      setMessages([]);
+    }
+    setInput("");
+    setAttachment(null);
+    setIsStreaming(false);
+  }, [threadId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });

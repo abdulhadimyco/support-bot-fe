@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { ChatHistory } from "@/components/layout/ChatHistory";
@@ -11,6 +11,11 @@ export function ChatPage() {
     paramThreadId ?? null,
   );
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // Sync threadId when URL params change (e.g. clicking a sidebar thread)
+  useEffect(() => {
+    setThreadId(paramThreadId ?? null);
+  }, [paramThreadId]);
 
   const handleNewThread = useCallback(() => {
     setThreadId(null);
