@@ -10,7 +10,7 @@ import type { ToolInvocation } from "@/components/chat/MessageBubble";
 
 interface ChatInterfaceProps {
   threadId: string | null;
-  onThreadCreated?: (id: string) => void;
+  onThreadCreated?: (id: string, summary?: string) => void;
 }
 
 interface ChatMessage {
@@ -64,7 +64,7 @@ function mockAssistantReply(userText: string): string {
 
 export function ChatInterface({
   threadId,
-  onThreadCreated: _onThreadCreated,
+  onThreadCreated,
 }: ChatInterfaceProps) {
   const { agent } = useAuth();
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -77,7 +77,9 @@ export function ChatInterface({
   useEffect(() => {
     if (threadId && MOCK_THREAD_MESSAGES[threadId]) {
       setMessages(MOCK_THREAD_MESSAGES[threadId]);
-    } else {
+    } else if (!threadId) {
+      // Only reset when explicitly starting a new thread (null),
+      // not when navigating to a dynamically created thread ID
       setMessages([]);
     }
     setInput("");
@@ -100,6 +102,14 @@ export function ChatInterface({
   const sendMessage = useCallback(
     (text: string) => {
       if (!text.trim()) return;
+
+      // First message in a new thread — create thread in sidebar
+      if (!threadId && messages.length === 0 && onThreadCreated) {
+        const newId = `t-${Date.now()}`;
+        const summary = text.trim().slice(0, 80);
+        onThreadCreated(newId, summary);
+      }
+
       const userMsg: ChatMessage = {
         id: nextId(),
         role: "user",
@@ -119,7 +129,7 @@ export function ChatInterface({
         setIsStreaming(false);
       }, 800 + Math.random() * 700);
     },
-    [],
+    [threadId, messages.length, onThreadCreated],
   );
 
   const handleSuggestion = useCallback(

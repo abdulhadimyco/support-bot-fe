@@ -61,6 +61,7 @@ interface ChatHistoryProps {
   onToggle: () => void;
   onNewThread: () => void;
   activeThreadId: string | null;
+  addThreadRef?: React.RefObject<((id: string, summary: string) => void) | null>;
 }
 
 export function ChatHistory({
@@ -68,11 +69,32 @@ export function ChatHistory({
   onToggle,
   onNewThread,
   activeThreadId,
+  addThreadRef,
 }: ChatHistoryProps) {
   const navigate = useNavigate();
   const [threads, setThreads] = useState<Thread[]>(MOCK_THREADS);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
+
+  // Expose addThread so ChatPage can push new threads into the sidebar
+  if (addThreadRef) {
+    addThreadRef.current = (id: string, summary: string) => {
+      const now = new Date().toISOString();
+      setThreads((prev) => [
+        {
+          id,
+          agentId: "",
+          customerEmail: null,
+          customerName: null,
+          summary,
+          status: "active",
+          createdAt: now,
+          updatedAt: now,
+        },
+        ...prev,
+      ]);
+    };
+  }
 
   function timeAgo(dateStr: string): string {
     const diff = Date.now() - new Date(dateStr).getTime();
@@ -138,7 +160,7 @@ export function ChatHistory({
   }
 
   return (
-    <aside className="flex w-64 flex-col border-r border-c3-border bg-c3-surface">
+    <aside className="flex w-64 shrink-0 flex-col overflow-hidden border-r border-c3-border bg-c3-surface">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-c3-border px-3 py-2">
         <span className="text-xs font-medium uppercase tracking-wider text-c3-text-muted">
@@ -167,7 +189,7 @@ export function ChatHistory({
       </div>
 
       {/* Thread list */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="min-h-0 flex-1">
         <div className="p-2">
           {threads.length === 0 ? (
             <div className="py-8 text-center text-xs text-c3-text-muted">

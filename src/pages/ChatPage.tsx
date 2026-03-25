@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { ChatHistory } from "@/components/layout/ChatHistory";
@@ -11,6 +11,7 @@ export function ChatPage() {
     paramThreadId ?? null,
   );
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const addThreadRef = useRef<((id: string, summary: string) => void) | null>(null);
 
   // Sync threadId when URL params change (e.g. clicking a sidebar thread)
   useEffect(() => {
@@ -23,9 +24,10 @@ export function ChatPage() {
   }, [navigate]);
 
   const handleThreadCreated = useCallback(
-    (id: string) => {
+    (id: string, summary?: string) => {
       setThreadId(id);
       navigate(`/chat/${id}`, { replace: true });
+      addThreadRef.current?.(id, summary || "New conversation");
     },
     [navigate],
   );
@@ -43,6 +45,7 @@ export function ChatPage() {
           onToggle={toggleSidebar}
           onNewThread={handleNewThread}
           activeThreadId={threadId}
+          addThreadRef={addThreadRef}
         />
         <main className="flex flex-1 flex-col overflow-hidden bg-c3-bg">
           <ChatInterface

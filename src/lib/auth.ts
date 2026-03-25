@@ -58,7 +58,6 @@ function setStoredAgent(agent: Agent | null) {
 function toAgent(user: LoginResponse["user"]): Agent {
   const name =
     [user.given_name, user.family_name].filter(Boolean).join(" ") ||
-    user.preferred_username ||
     user.username;
 
   return {
