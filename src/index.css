@@ -68,40 +68,40 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Always dark — C3PA themed */
+/* Always dark — C3PA themed. Shadcn vars reference the c3 palette above. */
 :root {
-  --background: #0e0f11;
-  --foreground: #e8eaf0;
-  --card: #16181c;
-  --card-foreground: #e8eaf0;
-  --popover: #16181c;
-  --popover-foreground: #e8eaf0;
-  --primary: #00e5a0;
-  --primary-foreground: #0e0f11;
-  --secondary: #1e2128;
-  --secondary-foreground: #e8eaf0;
-  --muted: #1e2128;
-  --muted-foreground: #6b7280;
-  --accent: #1e2128;
-  --accent-foreground: #e8eaf0;
-  --destructive: #ff4d6a;
-  --border: #2a2d35;
-  --input: #2a2d35;
-  --ring: #00e5a0;
-  --chart-1: #00e5a0;
-  --chart-2: #60a5fa;
-  --chart-3: #fbbf24;
-  --chart-4: #7c3aed;
-  --chart-5: #ff4d6a;
+  --background: var(--color-c3-bg);
+  --foreground: var(--color-c3-text);
+  --card: var(--color-c3-surface);
+  --card-foreground: var(--color-c3-text);
+  --popover: var(--color-c3-surface);
+  --popover-foreground: var(--color-c3-text);
+  --primary: var(--color-c3-accent);
+  --primary-foreground: var(--color-c3-bg);
+  --secondary: var(--color-c3-surface2);
+  --secondary-foreground: var(--color-c3-text);
+  --muted: var(--color-c3-surface2);
+  --muted-foreground: var(--color-c3-text-muted);
+  --accent: var(--color-c3-surface2);
+  --accent-foreground: var(--color-c3-text);
+  --destructive: var(--color-c3-danger);
+  --border: var(--color-c3-border);
+  --input: var(--color-c3-border);
+  --ring: var(--color-c3-accent);
+  --chart-1: var(--color-c3-accent);
+  --chart-2: var(--color-c3-info);
+  --chart-3: var(--color-c3-warning);
+  --chart-4: var(--color-c3-live);
+  --chart-5: var(--color-c3-danger);
   --radius: 0.5rem;
-  --sidebar: #16181c;
-  --sidebar-foreground: #e8eaf0;
-  --sidebar-primary: #00e5a0;
-  --sidebar-primary-foreground: #0e0f11;
-  --sidebar-accent: #1e2128;
-  --sidebar-accent-foreground: #e8eaf0;
-  --sidebar-border: #2a2d35;
-  --sidebar-ring: #00e5a0;
+  --sidebar: var(--color-c3-surface);
+  --sidebar-foreground: var(--color-c3-text);
+  --sidebar-primary: var(--color-c3-accent);
+  --sidebar-primary-foreground: var(--color-c3-bg);
+  --sidebar-accent: var(--color-c3-surface2);
+  --sidebar-accent-foreground: var(--color-c3-text);
+  --sidebar-border: var(--color-c3-border);
+  --sidebar-ring: var(--color-c3-accent);
 }
 
 html,
@@ -129,12 +129,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2a2d35;
+  background: var(--color-c3-border);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #6b7280;
+  background: var(--color-c3-text-muted);
 }
 
 @layer base {

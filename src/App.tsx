@@ -2,7 +2,6 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { LoginPage } from "@/pages/LoginPage";
 import { ChatPage } from "@/pages/ChatPage";
-import { HistoryPage } from "@/pages/HistoryPage";
 import { ReportPage } from "@/pages/ReportPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -19,14 +18,6 @@ export default function App() {
         element={
           <ProtectedRoute>
             <ChatPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/history"
-        element={
-          <ProtectedRoute>
-            <HistoryPage />
           </ProtectedRoute>
         }
       />
