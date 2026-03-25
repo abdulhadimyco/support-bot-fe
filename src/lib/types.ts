@@ -2,7 +2,39 @@ export interface Agent {
   id: string;
   email: string;
   name: string;
+  username: string;
   role: "agent" | "admin";
+}
+
+export interface MycoUser {
+  given_name: string;
+  family_name: string;
+  email: string;
+  email_verified: string;
+  phone_number_verified: string;
+  username: string;
+  preferred_username: string;
+  group: string;
+  "cognito:groups": string[];
+  userid: string;
+  "myco:userid": string;
+  birthdate: string;
+  country: string;
+  city: string;
+  gender: string;
+  auth_time: number;
+  is_gdpr_captured: boolean;
+  donot_ask_again_demographic: boolean;
+  profile_status: string;
+  partner: string;
+}
+
+export interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: MycoUser;
+  isGoogleLogin: boolean;
+  isAppleLogin: boolean;
 }
 
 export interface Thread {

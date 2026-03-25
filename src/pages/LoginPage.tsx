@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 export function LoginPage() {
   const { login, isLoading, token } = useAuth();
@@ -11,6 +12,7 @@ export function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   // Already logged in
   if (token) {
@@ -65,12 +67,12 @@ export function LoginPage() {
             )}
             <div className="space-y-1.5">
               <label className="font-mono text-[10px] uppercase tracking-widest text-c3-text-muted">
-                Username
+                Username or Email
               </label>
               <Input
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your username"
+                placeholder="Enter your username or email"
                 className="border-c3-border bg-c3-bg text-c3-text transition-shadow placeholder:text-c3-text-muted focus-visible:ring-c3-accent/50 focus-visible:shadow-[0_0_0_1px_rgba(0,229,160,0.15)]"
                 required
               />
@@ -79,14 +81,30 @@ export function LoginPage() {
               <label className="font-mono text-[10px] uppercase tracking-widest text-c3-text-muted">
                 Password
               </label>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                className="border-c3-border bg-c3-bg text-c3-text transition-shadow placeholder:text-c3-text-muted focus-visible:ring-c3-accent/50 focus-visible:shadow-[0_0_0_1px_rgba(0,229,160,0.15)]"
-                required
-              />
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="border-c3-border bg-c3-bg text-c3-text transition-shadow placeholder:text-c3-text-muted focus-visible:ring-c3-accent/50 focus-visible:shadow-[0_0_0_1px_rgba(0,229,160,0.15)] pr-10"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  tabIndex={-1}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-c3-text-muted hover:text-c3-accent focus:outline-none"
+                  style={{ background: "none", border: "none", cursor: "pointer" }}
+                >
+                  {showPassword ? (
+                    <EyeOffIcon size={18} aria-hidden="true" />
+                  ) : (
+                    <EyeIcon size={18} aria-hidden="true" />
+                  )}
+                </button>
+              </div>
             </div>
             <Button
               type="submit"

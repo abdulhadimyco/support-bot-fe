@@ -12,6 +12,12 @@ export default defineConfig({
   },
   server: {
     proxy: {
+      '/auth-api': {
+        target: 'https://authentication.myco.io',
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/auth-api/, ''),
+        secure: true,
+      },
       '/api': {
         target: 'http://localhost:8086',
         changeOrigin: true,
