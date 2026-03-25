@@ -3,12 +3,18 @@ import {
   useContext,
   useState,
   useCallback,
-  useEffect,
   type ReactNode,
 } from "react";
 import { createElement } from "react";
 import type { Agent } from "@/lib/types";
-import { api, ApiError } from "@/lib/api-client";
+
+const DUMMY_AGENT: Agent = {
+  id: "agent-001",
+  email: "agent@myco.com",
+  name: "Support Agent",
+  role: "agent",
+};
+const DUMMY_TOKEN = "dev-token-placeholder";
 
 const TOKEN_KEY = "c3pa_token";
 const AGENT_KEY = "c3pa_agent";
@@ -58,21 +64,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [agent, setAgent] = useState<Agent | null>(getStoredAgent);
   const [isLoading, setIsLoading] = useState(false);
 
-  const login = useCallback(async (username: string, password: string) => {
-    setIsLoading(true);
-    try {
-      const res = await api.post<{ token: string; agent: Agent }>(
-        "/api/auth/login",
-        { username, password },
-      );
-      setToken(res.token);
-      setStoredAgent(res.agent);
-      setTokenState(res.token);
-      setAgent(res.agent);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const login = useCallback(
+    async (_username: string, _password: string) => {
+      setIsLoading(true);
+      try {
+        // TODO: Replace with real API call: api.post("/api/auth/login", { username, password })
+        // For now, accept any credentials
+        await new Promise((r) => setTimeout(r, 300)); // simulate network delay
+        setToken(DUMMY_TOKEN);
+        setStoredAgent(DUMMY_AGENT);
+        setTokenState(DUMMY_TOKEN);
+        setAgent(DUMMY_AGENT);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [],
+  );
 
   const logout = useCallback(() => {
     setToken(null);
@@ -80,22 +88,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setTokenState(null);
     setAgent(null);
   }, []);
-
-  // Verify token on mount
-  useEffect(() => {
-    if (!token) return;
-    api.get<{ agent: Agent }>("/api/auth/me").then(
-      (res) => {
-        setAgent(res.agent);
-        setStoredAgent(res.agent);
-      },
-      (err) => {
-        if (err instanceof ApiError && err.status === 401) {
-          logout();
-        }
-      },
-    );
-  }, [token, logout]);
 
   return createElement(
     AuthContext.Provider,
