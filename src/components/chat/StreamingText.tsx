@@ -11,9 +11,9 @@ interface StreamingTextProps {
 interface ParsedSegment {
   type: "text" | "alert" | "thinking";
   content: string;
+  streaming?: boolean;
 }
 
-/** Parse content into text, dev alerts, and thinking blocks */
 function parseContent(raw: string): ParsedSegment[] {
   const { segments: alertSegments } = parseDevAlerts(raw);
   const result: ParsedSegment[] = [];
@@ -24,7 +24,7 @@ function parseContent(raw: string): ParsedSegment[] {
       continue;
     }
 
-    const thinkRegex = /<think>([\s\S]*?)<\/think>/g;
+    const thinkRegex = /<think>([\s\S]*?)(<\/think>|$)/g;
     let lastIndex = 0;
     let match;
 
@@ -33,8 +33,9 @@ function parseContent(raw: string): ParsedSegment[] {
       if (before) result.push({ type: "text", content: before });
 
       const thinkContent = match[1].trim();
+      const isClosed = match[2] === "</think>";
       if (thinkContent)
-        result.push({ type: "thinking", content: thinkContent });
+        result.push({ type: "thinking", content: thinkContent, streaming: !isClosed });
 
       lastIndex = match.index + match[0].length;
     }

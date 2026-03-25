@@ -2,7 +2,6 @@ import { useRef, useEffect, useCallback, useState, useMemo } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { toast } from "sonner";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageBubble } from "@/components/chat/MessageBubble";
 import { MessageInput } from "@/components/chat/MessageInput";
 import { TypingIndicator } from "@/components/chat/TypingIndicator";
@@ -23,10 +22,14 @@ export function ChatInterface({
   onThreadCreated,
 }: ChatInterfaceProps) {
   const { agent } = useAuth();
+  const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const [input, setInput] = useState("");
   const [attachment, setAttachment] = useState<File | null>(null);
   const threadIdRef = useRef(threadId);
+  const isNewThreadRef = useRef(false);
+  const userAtBottomRef = useRef(true);
+
   threadIdRef.current = threadId;
 
   const transport = useMemo(
@@ -54,7 +57,13 @@ export function ChatInterface({
   });
 
   // Load existing thread messages when threadId changes
+  // Skip if we just created this thread (messages are already in useChat state)
   useEffect(() => {
+    if (isNewThreadRef.current) {
+      isNewThreadRef.current = false;
+      return;
+    }
+
     if (threadId) {
       api
         .get<{
@@ -85,10 +94,27 @@ export function ChatInterface({
     setAttachment(null);
   }, [threadId, setMessages]);
 
-  // Auto-scroll
+  // Track if user is scrolled near the bottom
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, status]);
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const onScroll = () => {
+      const threshold = 100;
+      userAtBottomRef.current =
+        el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+    };
+
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Auto-scroll only if user is at the bottom
+  useEffect(() => {
+    if (userAtBottomRef.current) {
+      bottomRef.current?.scrollIntoView({ behavior: "instant" });
+    }
+  }, [messages]);
 
   // Show errors as toasts
   useEffect(() => {
@@ -113,7 +139,7 @@ export function ChatInterface({
       setInput("");
       setAttachment(null);
 
-      // If no thread yet, create one first via API (ChatGPT-style pattern)
+      // If no thread yet, create one first via API
       if (!threadIdRef.current) {
         try {
           const res = await api.post<{ data: Thread }>("/api/threads", {
@@ -121,13 +147,17 @@ export function ChatInterface({
           });
           const newThreadId = res.data.id;
           threadIdRef.current = newThreadId;
+          // Mark as new so the useEffect doesn't wipe messages
+          isNewThreadRef.current = true;
           onThreadCreated?.(newThreadId, text.trim().slice(0, 80));
-        } catch (err) {
+        } catch {
           toast.error("Failed to create conversation");
           return;
         }
       }
 
+      // Scroll to bottom when user sends a message
+      userAtBottomRef.current = true;
       await sendMessage({ text: text.trim() });
     },
     [sendMessage, onThreadCreated],
@@ -145,7 +175,6 @@ export function ChatInterface({
 
   const hasMessages = messages.length > 0;
 
-  /** Extract text content from a UI message */
   function getMessageText(msg: (typeof messages)[number]): string {
     if (msg.parts) {
       return msg.parts
@@ -156,7 +185,6 @@ export function ChatInterface({
     return "";
   }
 
-  /** Extract tool invocations from a UI message */
   function getToolInvocations(
     msg: (typeof messages)[number],
   ): ToolInvocation[] {
@@ -168,7 +196,8 @@ export function ChatInterface({
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <ScrollArea className="flex-1">
+      {/* Scrollable message area — plain div, not ScrollArea */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto">
         <div className="flex min-h-full flex-col">
           {!hasMessages ? (
             <WelcomeScreen onSuggestion={handleSuggestion} />
@@ -202,7 +231,7 @@ export function ChatInterface({
           )}
           <div ref={bottomRef} />
         </div>
-      </ScrollArea>
+      </div>
 
       <MessageInput
         value={input}
