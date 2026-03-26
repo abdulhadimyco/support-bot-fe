@@ -263,10 +263,8 @@ export function ChatHistory({
                         {timeAgo(thread.updatedAt)}
                       </span>
                       <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="shrink-0 rounded p-0.5 text-c3-text-muted opacity-0 hover:text-c3-text group-hover:opacity-100">
+                        <DropdownMenuTrigger className="shrink-0 rounded p-0.5 text-c3-text-muted opacity-0 hover:text-c3-text group-hover:opacity-100">
                             <MoreHorizontal className="h-3.5 w-3.5" />
-                          </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                           align="end"

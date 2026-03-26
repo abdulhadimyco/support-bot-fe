@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Download, LogOut, Settings, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,20 +64,16 @@ export function Header() {
         {threadId && (
           <TooltipProvider>
             <Tooltip>
-              <TooltipTrigger >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleDownloadReport}
-                  disabled={downloading}
-                  className="h-8 w-8 text-c3-text-muted hover:text-c3-text"
-                >
-                  {downloading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Download className="h-4 w-4" />
-                  )}
-                </Button>
+              <TooltipTrigger
+                onClick={handleDownloadReport}
+                disabled={downloading}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-c3-text-muted hover:bg-accent hover:text-c3-text"
+              >
+                {downloading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4" />
+                )}
               </TooltipTrigger>
               <TooltipContent side="bottom">
                 Download Report
@@ -88,11 +83,7 @@ export function Header() {
         )}
 
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button
-              variant="ghost"
-              className="flex items-center gap-2 text-c3-text-muted hover:text-c3-text"
-            >
+          <DropdownMenuTrigger className="flex items-center gap-2 rounded-md px-2 py-1.5 text-c3-text-muted hover:bg-accent hover:text-c3-text">
               {agent && (
                 <div className="flex h-6 w-6 items-center justify-center rounded-md bg-c3-accent/15 font-mono text-[9px] font-semibold text-c3-accent">
                   {agent.name
@@ -107,7 +98,6 @@ export function Header() {
                 {agent?.name}
               </span>
               <Settings className="h-3.5 w-3.5" />
-            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"

@@ -3,9 +3,12 @@ import {
   useContext,
   useState,
   useCallback,
+  useEffect,
+  useRef,
   type ReactNode,
 } from "react";
 import { createElement } from "react";
+import { jwtDecode } from "jwt-decode";
 import type { Agent, LoginResponse } from "@/lib/types";
 
 // In dev, requests go through vite proxy to avoid CORS.
@@ -16,10 +19,27 @@ const ACCESS_TOKEN_KEY = "c3pa_access_token";
 const REFRESH_TOKEN_KEY = "c3pa_refresh_token";
 const AGENT_KEY = "c3pa_agent";
 
-// --- localStorage helpers ---
+
+function isTokenExpired(token: string): boolean {
+  try {
+    const { exp } = jwtDecode<{ exp?: number }>(token);
+    if (!exp) return false;
+    return Date.now() >= exp * 1000 - 30_000;
+  } catch {
+    return true;
+  }
+}
+
 
 export function getToken(): string | null {
-  return localStorage.getItem(ACCESS_TOKEN_KEY);
+  const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+  if (token && isTokenExpired(token)) {
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(AGENT_KEY);
+    return null;
+  }
+  return token;
 }
 
 function setTokens(access: string | null, refresh: string | null) {
@@ -128,6 +148,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setTokenState(null);
     setAgent(null);
   }, []);
+
+  const logoutRef = useRef(logout);
+  logoutRef.current = logout;
+
+  useEffect(() => {
+    if (!token) return;
+    const interval = setInterval(() => {
+      if (isTokenExpired(token)) {
+        logoutRef.current();
+      }
+    }, 30_000);
+    return () => clearInterval(interval);
+  }, [token]);
 
   return createElement(
     AuthContext.Provider,
