@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import DarkVeil from "@/components/DarkVeil";
 
 export function LoginPage() {
   const { login, isLoading, token } = useAuth();
@@ -33,9 +34,8 @@ export function LoginPage() {
 
   return (
     <div className="relative flex min-h-full items-center justify-center bg-bot-bg p-4">
-      {/* Ambient accent glow */}
-      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-        <div className="h-[340px] w-[340px] rounded-full bg-bot-accent/[0.06] blur-[100px]" />
+      <div className="pointer-events-none absolute inset-0 z-0 opacity-40">
+        <DarkVeil hueShift={150} />
       </div>
 
       <Card className="relative w-full max-w-sm border-bot-border/60 bg-bot-surface shadow-[0_0_40px_-12px_rgba(0,229,160,0.12)]">

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { ChatHistory } from "@/components/layout/ChatHistory";
 import { ChatInterface } from "@/components/chat/ChatInterface";
+import DarkVeil from "@/components/DarkVeil";
 
 export function ChatPage() {
   const { threadId: paramThreadId } = useParams<{ threadId?: string }>();
@@ -48,11 +49,16 @@ export function ChatPage() {
           activeThreadId={threadId}
           addThreadRef={addThreadRef}
         />
-        <main className="flex flex-1 flex-col overflow-hidden bg-bot-bg">
-          <ChatInterface
-            threadId={threadId}
-            onThreadCreated={handleThreadCreated}
-          />
+        <main className="relative flex flex-1 flex-col overflow-hidden bg-bot-bg">
+          <div className="pointer-events-none absolute inset-0 z-0 opacity-30">
+            <DarkVeil hueShift={150} />
+          </div>
+          <div className="relative z-10 flex flex-1 flex-col overflow-hidden">
+            <ChatInterface
+              threadId={threadId}
+              onThreadCreated={handleThreadCreated}
+            />
+          </div>
         </main>
       </div>
     </div>

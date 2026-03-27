@@ -6,10 +6,10 @@
 
 @theme {
   /* Custom palette */
-  --color-bot-bg: #0e0f11;
-  --color-bot-surface: #16181c;
-  --color-bot-surface2: #1e2128;
-  --color-bot-border: #2a2d35;
+  --color-bot-bg: #000000;
+  --color-bot-surface: #0a0a0a;
+  --color-bot-surface2: #111111;
+  --color-bot-border: #1a1a1a;
   --color-bot-accent: #00d48a;
   --color-bot-accent-dim: rgba(0, 212, 138, 0.12);
   --color-bot-accent-glow: rgba(0, 212, 138, 0.35);
