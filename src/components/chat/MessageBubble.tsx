@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { StreamingText } from "@/components/chat/StreamingText";
@@ -13,11 +14,19 @@ export interface ToolInvocationV5 {
   output?: unknown;
 }
 
+export interface FilePart {
+  mediaType: string;
+  url: string;
+  filename?: string;
+  _localPreview?: string;
+}
+
 interface MessageBubbleProps {
   role: "user" | "assistant";
   content: string;
   agentInitials?: string;
   metadata?: MessageMetadata | null;
+  files?: FilePart[];
   toolInvocations?: ToolInvocationV5[];
   renderToolResult?: (invocation: ToolInvocationV5) => React.ReactNode;
 }
@@ -27,13 +36,12 @@ export function MessageBubble({
   content,
   agentInitials = "AG",
   metadata,
+  files,
   toolInvocations,
   renderToolResult,
 }: MessageBubbleProps) {
   const isUser = role === "user";
 
-  // Only render tool results that have output — hide calling indicators and errors from users
-  // Deduplicate by toolName — keep only the LAST invocation of each tool to avoid duplicate cards
   const completedTools = (() => {
     const all = toolInvocations?.filter(
       (inv) => inv.state === "output-available" && inv.output,
@@ -43,6 +51,16 @@ export function MessageBubble({
     for (const inv of all) byName.set(inv.toolName, inv);
     return Array.from(byName.values());
   })();
+
+  const isImage = (mediaType: string) => mediaType.startsWith("image/");
+  const displayContent = content === "(attached file)" ? "" : content;
+
+  // Resolve display URL: prefer local preview (live chat) → http URL (history) → skip S3 keys
+  const getDisplayUrl = (file: FilePart): string | null => {
+    if (file._localPreview) return file._localPreview;
+    if (file.url.startsWith("data:") || file.url.startsWith("http")) return file.url;
+    return null; // S3 key without presigned URL — can't display
+  };
 
   return (
     <motion.div
@@ -80,7 +98,37 @@ export function MessageBubble({
             : "w-full max-w-[80%] bg-bot-surface text-bot-text",
         )}
       >
-        {content && <StreamingText content={content} />}
+        {/* File attachments */}
+        {files && files.length > 0 && (
+          <div className="mb-2 flex flex-col gap-2">
+            {files.map((file, i) => {
+              const src = getDisplayUrl(file);
+              return isImage(file.mediaType) && src ? (
+                <img
+                  key={i}
+                  src={src}
+                  alt={file.filename || "Attached image"}
+                  className="max-h-[300px] max-w-full rounded-md border border-bot-border object-contain"
+                />
+              ) : (
+                <div
+                  key={i}
+                  className="flex items-center gap-2 rounded-md border border-bot-border bg-bot-surface2 px-3 py-2"
+                >
+                  <FileText className="h-4 w-4 shrink-0 text-bot-accent" />
+                  <span className="truncate font-mono text-xs text-bot-text-dim">
+                    {file.filename || "Attachment"}
+                  </span>
+                  <span className="shrink-0 font-mono text-[10px] text-bot-text-muted">
+                    {file.mediaType}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {displayContent && <StreamingText content={displayContent} />}
 
         {completedTools?.map((invocation) => {
           const rendered = renderToolResult?.(invocation);

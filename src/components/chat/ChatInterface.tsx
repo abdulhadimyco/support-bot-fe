@@ -12,20 +12,25 @@ import { api } from "@/lib/api-client";
 import type { Thread } from "@/lib/types";
 import type { ToolInvocationV5 } from "@/components/chat/MessageBubble";
 
+interface UploadedFile {
+  file: File;
+  url: string;
+  mediaType: string;
+  localPreview: string;
+}
+
 interface ChatInterfaceProps {
   threadId: string | null;
   onThreadCreated?: (id: string, summary?: string) => void;
 }
 
-export function ChatInterface({
-  threadId,
-  onThreadCreated,
-}: ChatInterfaceProps) {
+export function ChatInterface({ threadId, onThreadCreated }: ChatInterfaceProps) {
   const { agent } = useAuth();
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const [input, setInput] = useState("");
-  const [attachment, setAttachment] = useState<File | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [loadingThread, setLoadingThread] = useState(!!threadId);
   const threadIdRef = useRef(threadId);
   const isNewThreadRef = useRef(false);
@@ -39,8 +44,7 @@ export function ChatInterface({
         api: "/api/chat",
         headers: (): Record<string, string> => {
           const token = getToken();
-          if (!token) return {};
-          return { Authorization: `Bearer ${token}` };
+          return token ? { Authorization: `Bearer ${token}` } : {};
         },
         body: () => {
           const tid = threadIdRef.current;
@@ -52,9 +56,7 @@ export function ChatInterface({
 
   const { messages, sendMessage, status, error, setMessages } = useChat({
     transport,
-    onError: (err) => {
-      toast.error(err.message || "Something went wrong");
-    },
+    onError: (err) => toast.error(err.message || "Something went wrong"),
   });
 
   useEffect(() => {
@@ -78,6 +80,11 @@ export function ChatInterface({
                 input?: Record<string, unknown>;
                 output?: unknown;
               }> | null;
+              files?: Array<{
+                mediaType: string;
+                url: string;
+                filename?: string;
+              }> | null;
             }>;
           };
         }>(`/api/threads/${threadId}`)
@@ -86,6 +93,12 @@ export function ChatInterface({
             const parts: Array<Record<string, unknown>> = [
               { type: "text" as const, text: m.content as string },
             ];
+
+            if (m.files) {
+              for (const f of m.files) {
+                parts.push({ type: "file", mediaType: f.mediaType, url: f.url, filename: f.filename });
+              }
+            }
 
             if (m.toolInvocations) {
               for (const inv of m.toolInvocations) {
@@ -100,11 +113,7 @@ export function ChatInterface({
               }
             }
 
-            return {
-              id: m.id,
-              role: m.role as "user" | "assistant",
-              parts,
-            };
+            return { id: m.id, role: m.role as "user" | "assistant", parts };
           });
           setMessages(loaded as any);
         })
@@ -118,19 +127,15 @@ export function ChatInterface({
       setMessages([]);
     }
     setInput("");
-    setAttachment(null);
+    setUploadedFile(null);
   }, [threadId, setMessages]);
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-
     const onScroll = () => {
-      const threshold = 100;
-      userAtBottomRef.current =
-        el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+      userAtBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
     };
-
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
   }, []);
@@ -142,9 +147,7 @@ export function ChatInterface({
   }, [messages]);
 
   useEffect(() => {
-    if (error) {
-      toast.error(error.message || "Something went wrong");
-    }
+    if (error) toast.error(error.message || "Something went wrong");
   }, [error]);
 
   const agentInitials =
@@ -157,22 +160,60 @@ export function ChatInterface({
 
   const isStreaming = status === "streaming" || status === "submitted";
 
+  const handleAttach = useCallback(async (file: File | null) => {
+    if (!file) {
+      setUploadedFile(null);
+      return;
+    }
+
+    setIsUploading(true);
+    const localPreview = URL.createObjectURL(file);
+    const mediaType = file.type || "application/octet-stream";
+
+    try {
+      const presignRes = await api.post<{ uploadUrl: string; key: string }>(
+        "/api/upload/presign",
+        { mediaType, filename: file.name },
+      );
+
+      await fetch(presignRes.uploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": mediaType },
+        body: file,
+      });
+
+      const viewRes = await api.post<{ url: string }>(
+        "/api/upload/view",
+        { key: presignRes.key },
+      );
+
+      setUploadedFile({ file, url: viewRes.url, mediaType, localPreview });
+    } catch {
+      toast.error("Failed to upload file");
+      URL.revokeObjectURL(localPreview);
+      setUploadedFile(null);
+    } finally {
+      setIsUploading(false);
+    }
+  }, []);
+
   const handleSend = useCallback(
     async (text: string) => {
-      if (!text.trim() && !attachment) return;
-      const currentAttachment = attachment;
+      if (!text.trim() && !uploadedFile) return;
+      if (isUploading) return;
+
+      const currentFile = uploadedFile;
       setInput("");
-      setAttachment(null);
+      setUploadedFile(null);
 
       if (!threadIdRef.current) {
         try {
           const res = await api.post<{ data: Thread }>("/api/threads", {
             title: text.trim().slice(0, 100) || "Screenshot analysis",
           });
-          const newThreadId = res.data.id;
-          threadIdRef.current = newThreadId;
+          threadIdRef.current = res.data.id;
           isNewThreadRef.current = true;
-          onThreadCreated?.(newThreadId, text.trim().slice(0, 80) || "Screenshot analysis");
+          onThreadCreated?.(res.data.id, text.trim().slice(0, 80) || "Screenshot analysis");
         } catch {
           toast.error("Failed to create conversation");
           return;
@@ -181,25 +222,16 @@ export function ChatInterface({
 
       userAtBottomRef.current = true;
 
-      // Convert file attachment to data URL for the AI SDK
-      const files: Array<{ type: "file"; mediaType: string; url: string; filename?: string }> = [];
-      if (currentAttachment) {
-        try {
-          const dataUrl = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(currentAttachment);
-          });
-          files.push({
-            type: "file",
-            mediaType: currentAttachment.type || "image/png",
-            url: dataUrl,
-            filename: currentAttachment.name,
-          });
-        } catch {
-          toast.error("Failed to read file");
-        }
+      const files: Array<{ type: "file"; mediaType: string; url: string; filename?: string; _localPreview?: string }> = [];
+
+      if (currentFile) {
+        files.push({
+          type: "file",
+          mediaType: currentFile.mediaType,
+          url: currentFile.url,
+          filename: currentFile.file.name,
+          _localPreview: currentFile.localPreview,
+        });
       }
 
       await sendMessage({
@@ -207,7 +239,7 @@ export function ChatInterface({
         ...(files.length > 0 ? { files } : {}),
       });
     },
-    [sendMessage, onThreadCreated, attachment],
+    [sendMessage, onThreadCreated, uploadedFile, isUploading],
   );
 
   const handleSuggestion = useCallback(
@@ -216,7 +248,8 @@ export function ChatInterface({
   );
 
   function onSubmit() {
-    if (!input.trim() && !attachment) return;
+    if (isUploading) return;
+    if (!input.trim() && !uploadedFile) return;
     handleSend(input);
   }
 
@@ -224,18 +257,24 @@ export function ChatInterface({
   const isExistingThread = !!threadId;
 
   function getMessageText(msg: (typeof messages)[number]): string {
-    if (msg.parts) {
-      return msg.parts
-        .filter((p) => p.type === "text")
-        .map((p) => ("text" in p ? p.text : ""))
-        .join("");
-    }
-    return "";
+    if (!msg.parts) return "";
+    return msg.parts
+      .filter((p) => p.type === "text")
+      .map((p) => ("text" in p ? p.text : ""))
+      .join("");
   }
 
-  function getToolInvocations(
-    msg: (typeof messages)[number],
-  ): ToolInvocationV5[] {
+  function getFileParts(msg: (typeof messages)[number]) {
+    if (!msg.parts) return [];
+    return msg.parts
+      .filter((p) => p.type === "file")
+      .map((p) => {
+        const part = p as unknown as { mediaType: string; url: string; filename?: string; _localPreview?: string };
+        return { mediaType: part.mediaType, url: part.url, filename: part.filename, _localPreview: part._localPreview };
+      });
+  }
+
+  function getToolInvocations(msg: (typeof messages)[number]): ToolInvocationV5[] {
     if (!msg.parts) return [];
     return msg.parts
       .filter((p) => isToolUIPart(p))
@@ -266,9 +305,7 @@ export function ChatInterface({
             <WelcomeScreen onSuggestion={handleSuggestion} />
           ) : !hasMessages && isExistingThread ? (
             <div className="flex flex-1 items-center justify-center">
-              <span className="text-sm text-bot-text-muted">
-                No messages in this conversation
-              </span>
+              <span className="text-sm text-bot-text-muted">No messages in this conversation</span>
             </div>
           ) : (
             <div className="flex-1 py-4">
@@ -278,24 +315,21 @@ export function ChatInterface({
                   role={msg.role as "user" | "assistant"}
                   content={getMessageText(msg)}
                   agentInitials={agentInitials}
+                  files={getFileParts(msg)}
                   toolInvocations={getToolInvocations(msg)}
                   renderToolResult={(invocation) => (
-                    <ToolResultRenderer
-                      toolName={invocation.toolName}
-                      result={invocation.output}
-                    />
+                    <ToolResultRenderer toolName={invocation.toolName} result={invocation.output} />
                   )}
                 />
               ))}
-              {isStreaming &&
-                messages[messages.length - 1]?.role !== "assistant" && (
-                  <div className="flex gap-3 px-4 py-3">
-                    <div className="flex h-[30px] w-[30px] items-center justify-center rounded-md bg-bot-accent/15 font-mono text-[10px] font-semibold text-bot-accent">
-                      SH
-                    </div>
-                    <TypingIndicator />
+              {isStreaming && messages[messages.length - 1]?.role !== "assistant" && (
+                <div className="flex gap-3 px-4 py-3">
+                  <div className="flex h-[30px] w-[30px] items-center justify-center rounded-md bg-bot-accent/15 font-mono text-[10px] font-semibold text-bot-accent">
+                    SH
                   </div>
-                )}
+                  <TypingIndicator />
+                </div>
+              )}
             </div>
           )}
           <div ref={bottomRef} />
@@ -307,8 +341,10 @@ export function ChatInterface({
         onChange={setInput}
         onSubmit={onSubmit}
         isLoading={isStreaming}
-        attachment={attachment}
-        onAttach={setAttachment}
+        attachment={uploadedFile?.file ?? null}
+        onAttach={handleAttach}
+        isUploading={isUploading}
+        isUploaded={!!uploadedFile && !isUploading}
       />
     </div>
   );

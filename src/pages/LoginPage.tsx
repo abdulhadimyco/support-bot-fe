@@ -33,6 +33,7 @@ export function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const bg = useMemo(() => BACKGROUNDS[Math.floor(Math.random() * BACKGROUNDS.length)], []);
 
   // Already logged in
   if (token) {
@@ -54,13 +55,7 @@ export function LoginPage() {
   return (
     <div className="relative flex min-h-full items-center justify-center bg-bot-bg p-4">
 
-      {/* <AuroraBackground className="pointer-events-none absolute inset-0 !h-full" showRadialGradient><div /></AuroraBackground> */}
-
-      {/* <div className="pointer-events-none absolute inset-0 z-0 opacity-40"><DarkVeil hueShift={150} /></div> */}
-
-      {/* <div className="pointer-events-none absolute inset-0 z-0"><LightRays raysColor="#00ff99" raysSpeed={0.5} lightSpread={2} rayLength={3} pulsating fadeDistance={1.5} saturation={1.2} followMouse mouseInfluence={0.1} /></div> */}
-
-      <div className="pointer-events-none absolute inset-0 z-0"><Hyperspeed effectOptions={hyperspeedPresets.myco} /></div>
+      <RandomBackground pick={bg} />
 
 
       <Card className="relative w-full max-w-sm border-bot-border/60 bg-bot-surface shadow-[0_0_40px_-12px_rgba(0,229,160,0.12)]">
