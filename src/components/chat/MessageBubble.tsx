@@ -1,24 +1,25 @@
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { StreamingText } from "@/components/chat/StreamingText";
 import { ModelTag } from "@/components/shared/ModelTag";
 import type { MessageMetadata } from "@/lib/types";
 
+export interface ToolInvocationV5 {
+  toolCallId: string;
+  toolName: string;
+  state: string;
+  input?: Record<string, unknown>;
+  output?: unknown;
+}
+
 interface MessageBubbleProps {
   role: "user" | "assistant";
   content: string;
   agentInitials?: string;
   metadata?: MessageMetadata | null;
-  toolInvocations?: ToolInvocation[];
-  renderToolResult?: (invocation: ToolInvocation) => React.ReactNode;
-}
-
-export interface ToolInvocation {
-  toolCallId: string;
-  toolName: string;
-  args: Record<string, unknown>;
-  state: "partial-call" | "call" | "result";
-  result?: unknown;
+  toolInvocations?: ToolInvocationV5[];
+  renderToolResult?: (invocation: ToolInvocationV5) => React.ReactNode;
 }
 
 export function MessageBubble({
@@ -31,8 +32,28 @@ export function MessageBubble({
 }: MessageBubbleProps) {
   const isUser = role === "user";
 
+  // Only render tool results that have output — hide calling indicators and errors from users
+  // Deduplicate by toolName — keep only the LAST invocation of each tool to avoid duplicate cards
+  const completedTools = (() => {
+    const all = toolInvocations?.filter(
+      (inv) => inv.state === "output-available" && inv.output,
+    );
+    if (!all?.length) return all;
+    const byName = new Map<string, ToolInvocationV5>();
+    for (const inv of all) byName.set(inv.toolName, inv);
+    return Array.from(byName.values());
+  })();
+
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, x: isUser ? 24 : -24, scale: 0.95 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      transition={{
+        type: "spring",
+        stiffness: 380,
+        damping: 30,
+        mass: 0.8,
+      }}
       className={cn("flex gap-3 px-4 py-3", isUser ? "flex-row-reverse" : "")}
     >
       <Avatar
@@ -53,26 +74,23 @@ export function MessageBubble({
 
       <div
         className={cn(
-          "max-w-[80%] min-w-0 rounded-lg px-3 py-2",
+          "min-w-0 rounded-lg px-3 py-2",
           isUser
-            ? "bg-bot-accent-dim text-bot-text"
-            : "bg-bot-surface text-bot-text",
+            ? "max-w-[70%] bg-bot-accent-dim text-bot-text"
+            : "w-full max-w-[80%] bg-bot-surface text-bot-text",
         )}
       >
         {content && <StreamingText content={content} />}
 
-        {toolInvocations?.map((invocation) => (
-          <div key={invocation.toolCallId} className="mt-2">
-            {invocation.state === "result" && renderToolResult
-              ? renderToolResult(invocation)
-              : invocation.state !== "result" && (
-                  <div className="flex items-center gap-2 font-mono text-xs text-bot-text-muted">
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-bot-accent" />
-                    Calling {invocation.toolName}...
-                  </div>
-                )}
-          </div>
-        ))}
+        {completedTools?.map((invocation) => {
+          const rendered = renderToolResult?.(invocation);
+          if (!rendered) return null;
+          return (
+            <div key={invocation.toolCallId} className="mt-2">
+              {rendered}
+            </div>
+          );
+        })}
 
         {metadata && (metadata.model || metadata.provider) && (
           <div className="mt-2">
@@ -80,6 +98,6 @@ export function MessageBubble({
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { UserProfileCard } from "@/components/data/UserProfileCard";
 import { PaymentTimeline } from "@/components/data/PaymentTimeline";
 import { WatchCalendar } from "@/components/data/WatchCalendar";
@@ -13,6 +14,18 @@ interface ToolResultRendererProps {
   toolName: string;
   result: unknown;
 }
+
+/** Shared spring entrance for every tool result card */
+const resultMotion = {
+  initial: { opacity: 0, scale: 0.97, y: 8 },
+  animate: { opacity: 1, scale: 1, y: 0 },
+  transition: {
+    type: "spring" as const,
+    stiffness: 340,
+    damping: 28,
+    mass: 0.7,
+  },
+};
 
 export function ToolResultRenderer({
   toolName,
@@ -30,15 +43,24 @@ export function ToolResultRenderer({
     toolName === "getPaymentHistory" ||
     (Array.isArray(data.license_timelines) && data.payment_count != null)
   ) {
-    return <PaymentTimeline data={data as unknown as PaymentHistoryResponse} />;
+    return (
+      <motion.div layout {...resultMotion}>
+        <PaymentTimeline data={data as unknown as PaymentHistoryResponse} />
+      </motion.div>
+    );
   }
 
-  // Watch calendar month — has days array + year/month
+  // Watch calendar — has months array (multi-month) or days array (legacy single-month)
   if (
     toolName === "getWatchCalendarMonth" ||
+    Array.isArray(data.months) ||
     (Array.isArray(data.days) && data.year != null && data.month != null)
   ) {
-    return <WatchCalendar data={data as unknown as WatchCalendarData} />;
+    return (
+      <motion.div layout {...resultMotion}>
+        <WatchCalendar data={data as unknown as WatchCalendarData} />
+      </motion.div>
+    );
   }
 
   // Subscription check — has subscriptions array
@@ -47,7 +69,9 @@ export function ToolResultRenderer({
     (Array.isArray(data.subscriptions) && data.subscription_count != null)
   ) {
     return (
-      <SubscriptionCard data={data as unknown as SubscriptionResponse} />
+      <motion.div layout {...resultMotion}>
+        <SubscriptionCard data={data as unknown as SubscriptionResponse} />
+      </motion.div>
     );
   }
 
@@ -58,18 +82,13 @@ export function ToolResultRenderer({
     toolName === "lookupUser" ||
     (data.user_id && (data.email || data.name))
   ) {
-    return <UserProfileCard profile={data as unknown as UserProfile} />;
+    return (
+      <motion.div layout {...resultMotion}>
+        <UserProfileCard profile={data as unknown as UserProfile} />
+      </motion.div>
+    );
   }
 
-  // Default: collapsible JSON
-  return (
-    <details className="mt-1">
-      <summary className="cursor-pointer font-mono text-xs text-bot-text-muted hover:text-bot-text-dim">
-        Tool result: {toolName}
-      </summary>
-      <pre className="mt-1 max-h-48 overflow-auto rounded bg-bot-bg p-2 font-mono text-[11px] text-bot-text-dim">
-        {JSON.stringify(result, null, 2)}
-      </pre>
-    </details>
-  );
+  // Unknown tools — don't show raw data to non-technical users
+  return null;
 }

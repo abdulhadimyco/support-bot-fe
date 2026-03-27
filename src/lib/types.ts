@@ -181,8 +181,7 @@ export interface WatchEntry {
   client?: string;
 }
 
-export interface WatchCalendarData {
-  user_id: string;
+export interface WatchMonthSummary {
   year: number;
   month: number;
   active_days: number;
@@ -192,6 +191,13 @@ export interface WatchCalendarData {
   vod_seconds: number;
   total_seconds: number;
   days: WatchCalendarDay[];
+}
+
+export interface WatchCalendarData {
+  user_id: string;
+  current_year: number;
+  current_month: number;
+  months: WatchMonthSummary[];
 }
 
 export interface WatchCalendarDayDetail {

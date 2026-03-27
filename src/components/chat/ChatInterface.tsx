@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback, useState, useMemo } from "react";
 import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport } from "ai";
+import { DefaultChatTransport, isToolUIPart, getToolName } from "ai";
 import { toast } from "sonner";
 import { MessageBubble } from "@/components/chat/MessageBubble";
 import { MessageInput } from "@/components/chat/MessageInput";
@@ -10,7 +10,7 @@ import { ToolResultRenderer } from "@/components/chat/ToolResultRenderer";
 import { useAuth, getToken } from "@/lib/auth";
 import { api } from "@/lib/api-client";
 import type { Thread } from "@/lib/types";
-import type { ToolInvocation } from "@/components/chat/MessageBubble";
+import type { ToolInvocationV5 } from "@/components/chat/MessageBubble";
 
 interface ChatInterfaceProps {
   threadId: string | null;
@@ -72,16 +72,41 @@ export function ChatInterface({
               id: string;
               role: "user" | "assistant";
               content: string;
+              toolInvocations?: Array<{
+                toolCallId: string;
+                toolName: string;
+                input?: Record<string, unknown>;
+                output?: unknown;
+              }> | null;
             }>;
           };
         }>(`/api/threads/${threadId}`)
         .then((res) => {
-          const loaded = res.data.messages.map((m) => ({
-            id: m.id,
-            role: m.role as "user" | "assistant",
-            parts: [{ type: "text" as const, text: m.content as string }],
-          }));
-          setMessages(loaded);
+          const loaded = res.data.messages.map((m) => {
+            const parts: Array<Record<string, unknown>> = [
+              { type: "text" as const, text: m.content as string },
+            ];
+
+            if (m.toolInvocations) {
+              for (const inv of m.toolInvocations) {
+                parts.push({
+                  type: `tool-${inv.toolName}`,
+                  toolCallId: inv.toolCallId,
+                  toolName: inv.toolName,
+                  state: "output-available",
+                  input: inv.input ?? {},
+                  output: inv.output,
+                });
+              }
+            }
+
+            return {
+              id: m.id,
+              role: m.role as "user" | "assistant",
+              parts,
+            };
+          });
+          setMessages(loaded as any);
         })
         .catch((err) => {
           console.error("Failed to load thread messages:", err);
@@ -184,11 +209,20 @@ export function ChatInterface({
 
   function getToolInvocations(
     msg: (typeof messages)[number],
-  ): ToolInvocation[] {
+  ): ToolInvocationV5[] {
     if (!msg.parts) return [];
     return msg.parts
-      .filter((p) => p.type === "tool-invocation")
-      .map((p) => p as unknown as ToolInvocation);
+      .filter((p) => isToolUIPart(p))
+      .map((p) => {
+        const part = p as unknown as Record<string, unknown>;
+        return {
+          toolCallId: part.toolCallId as string,
+          toolName: getToolName(p as any),
+          state: part.state as string,
+          input: part.input as Record<string, unknown> | undefined,
+          output: part.output as unknown,
+        };
+      });
   }
 
   return (
@@ -222,7 +256,7 @@ export function ChatInterface({
                   renderToolResult={(invocation) => (
                     <ToolResultRenderer
                       toolName={invocation.toolName}
-                      result={invocation.result}
+                      result={invocation.output}
                     />
                   )}
                 />

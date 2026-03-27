@@ -272,3 +272,137 @@ body {
 .glow-accent-border {
   box-shadow: 0 0 8px var(--color-bot-accent-glow), inset 0 0 4px rgba(0, 212, 138, 0.05);
 }
+
+/* ── Shimmer / skeleton loading ──────────────────────────────── */
+.shimmer-loading {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-bot-surface2);
+}
+.shimmer-loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 212, 138, 0.06) 30%,
+    rgba(0, 212, 138, 0.12) 50%,
+    rgba(0, 212, 138, 0.06) 70%,
+    transparent 100%
+  );
+  animation: shimmer-sweep 1.8s ease-in-out infinite;
+}
+@keyframes shimmer-sweep {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ── Pulse glow ──────────────────────────────────────────────── */
+.pulse-glow {
+  animation: pulse-glow-anim 2.4s ease-in-out infinite;
+}
+@keyframes pulse-glow-anim {
+  0%, 100% { box-shadow: 0 0 6px rgba(0, 212, 138, 0.15), 0 0 12px rgba(0, 212, 138, 0.06); }
+  50%      { box-shadow: 0 0 14px rgba(0, 212, 138, 0.35), 0 0 28px rgba(0, 212, 138, 0.12); }
+}
+
+/* ── Glass-morphism card ─────────────────────────────────────── */
+.glass-card {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 212, 138, 0.06) 0%,
+    rgba(22, 24, 28, 0.9) 40%,
+    rgba(30, 33, 40, 0.85) 100%
+  );
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid rgba(0, 212, 138, 0.2);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(0, 212, 138, 0.08),
+    0 0 60px rgba(0, 212, 138, 0.03);
+}
+
+/* ── Gradient border animation ───────────────────────────────── */
+.gradient-border {
+  position: relative;
+  isolation: isolate;
+}
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--gradient-angle, 0deg),
+    transparent 25%,
+    var(--color-bot-accent) 50%,
+    transparent 75%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  animation: gradient-rotate 4s linear infinite;
+  opacity: 0.5;
+}
+@keyframes gradient-rotate {
+  0%   { --gradient-angle: 0deg; }
+  100% { --gradient-angle: 360deg; }
+}
+@property --gradient-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* ── Better scrollbar styling ────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 4px 0;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(42, 45, 53, 0.8);
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 212, 138, 0.3);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(42, 45, 53, 0.8) transparent;
+}
+
+/* ── Tool calling shimmer bar ────────────────────────────────── */
+.tool-shimmer-bar {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, var(--color-bot-surface2) 0%, rgba(0, 212, 138, 0.08) 50%, var(--color-bot-surface2) 100%);
+  border-radius: 6px;
+}
+.tool-shimmer-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 212, 138, 0.15) 40%,
+    rgba(0, 212, 138, 0.25) 50%,
+    rgba(0, 212, 138, 0.15) 60%,
+    transparent 100%
+  );
+  animation: shimmer-sweep 1.5s ease-in-out infinite;
+}

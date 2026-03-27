@@ -2,53 +2,49 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ChevronDown, ChevronRight, Brain } from "lucide-react";
-import { DevAlert, parseDevAlerts } from "@/components/shared/DevAlert";
 
 interface StreamingTextProps {
   content: string;
 }
 
 interface ParsedSegment {
-  type: "text" | "alert" | "thinking";
+  type: "text" | "thinking";
   content: string;
   streaming?: boolean;
 }
 
+function stripDevAlerts(raw: string): string {
+  return raw.replace(/\[DEV_ALERT\][\s\S]*?(\[\/DEV_ALERT\]|$)/gi, "");
+}
+
 function parseContent(raw: string): ParsedSegment[] {
-  const { segments: alertSegments } = parseDevAlerts(raw);
+  const cleaned = stripDevAlerts(raw).trim();
   const result: ParsedSegment[] = [];
 
-  for (const seg of alertSegments) {
-    if (seg.type === "alert") {
-      result.push({ type: "alert", content: seg.content });
-      continue;
-    }
+  const thinkRegex = /<think>([\s\S]*?)(<\/think>|$)/g;
+  let lastIndex = 0;
+  let match;
 
-    const thinkRegex = /<think>([\s\S]*?)(<\/think>|$)/g;
-    let lastIndex = 0;
-    let match;
+  while ((match = thinkRegex.exec(cleaned)) !== null) {
+    const before = cleaned.slice(lastIndex, match.index).trim();
+    if (before) result.push({ type: "text", content: before });
 
-    while ((match = thinkRegex.exec(seg.content)) !== null) {
-      const before = seg.content.slice(lastIndex, match.index).trim();
-      if (before) result.push({ type: "text", content: before });
+    const thinkContent = match[1].trim();
+    const isClosed = match[2] === "</think>";
+    if (thinkContent)
+      result.push({ type: "thinking", content: thinkContent, streaming: !isClosed });
 
-      const thinkContent = match[1].trim();
-      const isClosed = match[2] === "</think>";
-      if (thinkContent)
-        result.push({ type: "thinking", content: thinkContent, streaming: !isClosed });
-
-      lastIndex = match.index + match[0].length;
-    }
-
-    const remaining = seg.content.slice(lastIndex).trim();
-    if (remaining) result.push({ type: "text", content: remaining });
+    lastIndex = match.index + match[0].length;
   }
+
+  const remaining = cleaned.slice(lastIndex).trim();
+  if (remaining) result.push({ type: "text", content: remaining });
 
   return result;
 }
 
 function ThinkingBlock({ content }: { content: string }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
 
   return (
     <div className="my-2 rounded-md border border-bot-border/50 bg-bot-surface2/50">
@@ -79,10 +75,6 @@ export function StreamingText({ content }: StreamingTextProps) {
   return (
     <div className="space-y-1 font-sans">
       {segments.map((seg, i) => {
-        if (seg.type === "alert") {
-          return <DevAlert key={i} content={seg.content} />;
-        }
-
         if (seg.type === "thinking") {
           return <ThinkingBlock key={i} content={seg.content} />;
         }

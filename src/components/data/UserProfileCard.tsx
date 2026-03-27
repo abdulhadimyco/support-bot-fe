@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -55,11 +56,16 @@ export function UserProfileCard({ profile }: UserProfileCardProps) {
   ].filter((f) => f.value);
 
   return (
-    <Card className="border-bot-accent/15 bg-gradient-to-br from-bot-accent/[0.04] to-bot-accent/[0.01] p-4">
+    <Card className="glass-card p-4">
       <div className="mb-3 flex items-center gap-3">
-        <div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-bot-accent to-[#00b380] font-mono text-[13px] font-bold text-bot-bg">
+        <motion.div
+          initial={{ scale: 0.6, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 400, damping: 20, delay: 0.1 }}
+          className="pulse-glow flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-bot-accent to-[#00b380] font-mono text-[13px] font-bold text-bot-bg"
+        >
           {initials}
-        </div>
+        </motion.div>
         <div>
           {profile.name && (
             <div className="text-sm font-semibold leading-tight text-bot-text">
@@ -83,8 +89,14 @@ export function UserProfileCard({ profile }: UserProfileCardProps) {
       </div>
 
       <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-x-4 gap-y-1.5">
-        {fields.map((f) => (
-          <div key={f.label} className="flex flex-col gap-px">
+        {fields.map((f, i) => (
+          <motion.div
+            key={f.label}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 + i * 0.04, duration: 0.3, ease: "easeOut" }}
+            className="flex flex-col gap-px"
+          >
             <span className="font-mono text-[9px] uppercase tracking-[0.6px] text-bot-text-muted/70">
               {f.label}
             </span>
@@ -94,7 +106,7 @@ export function UserProfileCard({ profile }: UserProfileCardProps) {
                 <Check className="h-[11px] w-[11px] shrink-0 text-bot-accent" />
               )}
             </span>
-          </div>
+          </motion.div>
         ))}
       </div>
     </Card>

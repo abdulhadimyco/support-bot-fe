@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -15,7 +16,7 @@ interface PaymentTimelineProps {
   data: PaymentHistoryResponse;
 }
 
-/* ── helpers ───────────────────────────────────────────────── */
+/* -- helpers --------------------------------------------------- */
 
 function fmtAmt(amount: number, currency?: string | null): string {
   const num = Number(amount);
@@ -36,7 +37,7 @@ function fmtTotals(totals: Record<string, number>): string {
 }
 
 function fmtDate(iso?: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return "\u2014";
   try {
     return new Date(iso).toLocaleDateString("en-US", {
       month: "short",
@@ -49,7 +50,7 @@ function fmtDate(iso?: string | null): string {
 }
 
 function fmtDateTime(iso?: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return "\u2014";
   try {
     return new Date(iso).toLocaleString("en-US", {
       month: "short",
@@ -90,7 +91,7 @@ function statusLabelColor(status?: string): string {
   return "text-bot-text-muted";
 }
 
-/* ── detail row ────────────────────────────────────────────── */
+/* -- detail row ------------------------------------------------ */
 
 function DetailRow({
   label,
@@ -112,7 +113,7 @@ function DetailRow({
   );
 }
 
-/* ── detail panel ──────────────────────────────────────────── */
+/* -- detail panel ---------------------------------------------- */
 
 function PaymentDetailPanel({
   payment,
@@ -122,7 +123,14 @@ function PaymentDetailPanel({
   onClose: () => void;
 }) {
   return (
-    <div className="relative mt-px animate-in slide-in-from-top-1 fade-in rounded-b-lg border border-t-0 border-bot-border bg-gradient-to-b from-bot-surface to-bot-bg">
+    <motion.div
+      initial={{ opacity: 0, height: 0, scaleY: 0.95 }}
+      animate={{ opacity: 1, height: "auto", scaleY: 1 }}
+      exit={{ opacity: 0, height: 0, scaleY: 0.95 }}
+      transition={{ type: "spring", stiffness: 320, damping: 28, mass: 0.7 }}
+      style={{ originY: 0 }}
+      className="relative mt-px overflow-hidden rounded-b-lg border border-t-0 border-bot-border bg-gradient-to-b from-bot-surface to-bot-bg"
+    >
       {/* Hero */}
       <div className="flex flex-wrap items-center gap-2.5 border-b border-bot-border bg-bot-accent/[0.04] px-4 py-3">
         <span className="font-mono text-lg font-bold text-bot-text">
@@ -238,7 +246,7 @@ function PaymentDetailPanel({
             {payment.license_plans.map((lp, i) => {
               let label = lp.name || `Plan ${i + 1}`;
               if (lp.price != null)
-                label += ` — ${lp.price}${lp.currency ? ` ${lp.currency}` : ""}`;
+                label += ` \u2014 ${lp.price}${lp.currency ? ` ${lp.currency}` : ""}`;
               if (lp.duration) label += ` / ${lp.duration}mo`;
               return (
                 <div
@@ -252,11 +260,11 @@ function PaymentDetailPanel({
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
-/* ── timeline section (per license) ────────────────────────── */
+/* -- timeline section (per license) ---------------------------- */
 
 function TimelineSection({ tl }: { tl: LicenseTimeline }) {
   const [selected, setSelected] = useState<Payment | null>(null);
@@ -299,8 +307,16 @@ function TimelineSection({ tl }: { tl: LicenseTimeline }) {
         <ScrollArea className="w-full rounded-b-lg border border-t-0 border-bot-border bg-bot-bg">
           <div className="flex items-stretch gap-0 px-3 py-4">
             {sortedPayments.map((p, i) => (
-              <button
+              <motion.button
                 key={i}
+                initial={{ opacity: 0, x: -16, scale: 0.92 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                transition={{
+                  delay: i * 0.07,
+                  type: "spring",
+                  stiffness: 360,
+                  damping: 26,
+                }}
                 onClick={() =>
                   setSelected(selected === p ? null : p)
                 }
@@ -335,7 +351,7 @@ function TimelineSection({ tl }: { tl: LicenseTimeline }) {
                     {p.status}
                   </span>
                 )}
-              </button>
+              </motion.button>
             ))}
           </div>
           <ScrollBar orientation="horizontal" />
@@ -347,21 +363,24 @@ function TimelineSection({ tl }: { tl: LicenseTimeline }) {
       )}
 
       {/* Detail panel */}
-      {selected && (
-        <PaymentDetailPanel
-          payment={selected}
-          onClose={() => setSelected(null)}
-        />
-      )}
+      <AnimatePresence mode="wait">
+        {selected && (
+          <PaymentDetailPanel
+            key={selected.created_at ?? "detail"}
+            payment={selected}
+            onClose={() => setSelected(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
-/* ── main component ────────────────────────────────────────── */
+/* -- main component -------------------------------------------- */
 
 export function PaymentTimeline({ data }: PaymentTimelineProps) {
   return (
-    <Card className="border-bot-border bg-bot-surface p-4">
+    <Card className="glass-card p-4">
       {data.license_timelines.map((tl, i) => (
         <TimelineSection key={i} tl={tl} />
       ))}

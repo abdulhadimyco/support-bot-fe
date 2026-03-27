@@ -1,22 +1,32 @@
+import { motion } from "framer-motion";
+
+const dotVariants = {
+  initial: { y: 0, opacity: 0.4 },
+  animate: { y: -5, opacity: 1 },
+};
+
 export function TypingIndicator() {
   return (
-    <div className="flex items-center gap-1 px-1 py-2">
+    <div className="flex items-center gap-1.5 px-1 py-2">
       {[0, 1, 2].map((i) => (
-        <span
+        <motion.span
           key={i}
-          className="h-1.5 w-1.5 rounded-full bg-bot-accent"
+          className="inline-block h-[6px] w-[6px] rounded-full bg-bot-accent"
+          variants={dotVariants}
+          initial="initial"
+          animate="animate"
+          transition={{
+            duration: 0.45,
+            repeat: Infinity,
+            repeatType: "reverse",
+            ease: "easeInOut",
+            delay: i * 0.15,
+          }}
           style={{
-            animation: "bounce 1.4s ease-in-out infinite",
-            animationDelay: `${i * 0.16}s`,
+            boxShadow: "0 0 6px rgba(0, 212, 138, 0.35)",
           }}
         />
       ))}
-      <style>{`
-        @keyframes bounce {
-          0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-          30% { transform: translateY(-4px); opacity: 1; }
-        }
-      `}</style>
     </div>
   );
 }

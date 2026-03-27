@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import type { SubscriptionResponse, SubscriptionItem } from "@/lib/types";
@@ -7,7 +8,7 @@ interface SubscriptionCardProps {
 }
 
 function fmtDate(iso?: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return "\u2014";
   try {
     return new Date(iso).toLocaleDateString("en-US", {
       month: "short",
@@ -20,13 +21,36 @@ function fmtDate(iso?: string | null): string {
 }
 
 function fmtPrice(price?: number | null, currency?: string | null): string {
-  if (price == null) return "—";
+  if (price == null) return "\u2014";
   return currency ? `${price} ${currency}` : String(price);
 }
 
-function SubRow({ item }: { item: SubscriptionItem }) {
+function SubRow({ item, index }: { item: SubscriptionItem; index: number }) {
+  const fields: Array<{
+    label: string;
+    value: string | undefined;
+    isDanger?: boolean;
+  }> = [];
+
+  if (item.plan_name) fields.push({ label: "Plan", value: item.plan_name });
+  if (item.price != null) fields.push({ label: "Price", value: fmtPrice(item.price, item.currency) });
+  if (item.expires_at) fields.push({ label: "Expires", value: fmtDate(item.expires_at) });
+  if (item.created_at) fields.push({ label: "Created", value: fmtDate(item.created_at) });
+  if (item.is_onetime != null) fields.push({ label: "Type", value: item.is_onetime ? "One-time" : "Recurring" });
+  if (item.is_canceled) fields.push({ label: "Canceled", value: "Yes", isDanger: true });
+
   return (
-    <div className="rounded-lg border border-bot-border bg-bot-bg p-3">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        delay: index * 0.08,
+        type: "spring",
+        stiffness: 360,
+        damping: 28,
+      }}
+      className="rounded-lg border border-bot-border bg-bot-bg p-3"
+    >
       <div className="mb-2 flex items-center justify-between">
         <span className="font-mono text-[13px] font-semibold text-bot-text">
           {item.license_name || "Untitled License"}
@@ -35,74 +59,29 @@ function SubRow({ item }: { item: SubscriptionItem }) {
       </div>
 
       <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-x-4 gap-y-1">
-        {item.plan_name && (
-          <div>
+        {fields.map((f, i) => (
+          <motion.div
+            key={f.label}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.08 + 0.1 + i * 0.03, duration: 0.25, ease: "easeOut" }}
+          >
             <div className="font-mono text-[9px] uppercase tracking-[0.6px] text-bot-text-muted/70">
-              Plan
+              {f.label}
             </div>
-            <div className="font-mono text-xs text-bot-text">
-              {item.plan_name}
+            <div className={`font-mono text-xs ${f.isDanger ? "font-semibold text-bot-danger" : "text-bot-text"}`}>
+              {f.value}
             </div>
-          </div>
-        )}
-        {item.price != null && (
-          <div>
-            <div className="font-mono text-[9px] uppercase tracking-[0.6px] text-bot-text-muted/70">
-              Price
-            </div>
-            <div className="font-mono text-xs text-bot-text">
-              {fmtPrice(item.price, item.currency)}
-            </div>
-          </div>
-        )}
-        {item.expires_at && (
-          <div>
-            <div className="font-mono text-[9px] uppercase tracking-[0.6px] text-bot-text-muted/70">
-              Expires
-            </div>
-            <div className="font-mono text-xs text-bot-text">
-              {fmtDate(item.expires_at)}
-            </div>
-          </div>
-        )}
-        {item.created_at && (
-          <div>
-            <div className="font-mono text-[9px] uppercase tracking-[0.6px] text-bot-text-muted/70">
-              Created
-            </div>
-            <div className="font-mono text-xs text-bot-text">
-              {fmtDate(item.created_at)}
-            </div>
-          </div>
-        )}
-        {item.is_onetime != null && (
-          <div>
-            <div className="font-mono text-[9px] uppercase tracking-[0.6px] text-bot-text-muted/70">
-              Type
-            </div>
-            <div className="font-mono text-xs text-bot-text">
-              {item.is_onetime ? "One-time" : "Recurring"}
-            </div>
-          </div>
-        )}
-        {item.is_canceled && (
-          <div>
-            <div className="font-mono text-[9px] uppercase tracking-[0.6px] text-bot-text-muted/70">
-              Canceled
-            </div>
-            <div className="font-mono text-xs font-semibold text-bot-danger">
-              Yes
-            </div>
-          </div>
-        )}
+          </motion.div>
+        ))}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
 export function SubscriptionCard({ data }: SubscriptionCardProps) {
   return (
-    <Card className="border-bot-border bg-bot-surface p-4">
+    <Card className="glass-card p-4">
       {/* Summary header */}
       <div className="mb-3 flex flex-wrap items-center gap-3 font-mono text-[11px] text-bot-text-muted">
         <span>
@@ -126,7 +105,7 @@ export function SubscriptionCard({ data }: SubscriptionCardProps) {
       {/* Subscription rows */}
       <div className="flex flex-col gap-2">
         {data.subscriptions.map((sub, i) => (
-          <SubRow key={i} item={sub} />
+          <SubRow key={i} item={sub} index={i} />
         ))}
       </div>
     </Card>
