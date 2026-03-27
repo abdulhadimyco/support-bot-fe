@@ -109,6 +109,7 @@ export function MessageInput({
       )}
 
       <div className="flex items-end gap-2">
+        {/* TODO: Re-enable when vision model is configured
         <input
           ref={fileRef}
           type="file"
@@ -125,6 +126,7 @@ export function MessageInput({
         >
           <Paperclip className="h-4 w-4" />
         </Button>
+        */}
 
         <Textarea
           value={value}
