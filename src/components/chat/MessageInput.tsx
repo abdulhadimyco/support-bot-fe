@@ -36,14 +36,14 @@ export function MessageInput({
   }
 
   return (
-    <div className="border-t border-c3-border bg-c3-surface p-3">
+    <div className="border-t border-border-subtle bg-surface p-3">
       {attachment && (
-        <div className="mb-2 inline-flex items-center gap-1.5 rounded-md bg-c3-surface2 px-2 py-1 text-xs text-c3-text-dim">
+        <div className="mb-2 inline-flex items-center gap-1.5 rounded-md bg-surface2 px-2 py-1 text-xs text-text-dim">
           <Paperclip className="h-3 w-3" />
           <span className="max-w-[200px] truncate">{attachment.name}</span>
           <button
             onClick={() => onAttach(null)}
-            className="ml-1 text-c3-text-muted hover:text-c3-danger"
+            className="ml-1 text-text-muted hover:text-danger"
           >
             <X className="h-3 w-3" />
           </button>
@@ -61,7 +61,7 @@ export function MessageInput({
         <Button
           variant="ghost"
           size="icon"
-          className="h-9 w-9 shrink-0 text-c3-text-muted hover:text-c3-text"
+          className="h-9 w-9 shrink-0 text-text-muted hover:text-text-primary"
           onClick={() => fileRef.current?.click()}
         >
           <Paperclip className="h-4 w-4" />
@@ -72,14 +72,14 @@ export function MessageInput({
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Type a message..."
-          className="min-h-[36px] max-h-[120px] resize-none border-c3-border bg-c3-bg font-sans text-sm text-c3-text placeholder:text-c3-text-muted focus-visible:ring-c3-accent/50"
+          className="min-h-[36px] max-h-[120px] resize-none border-border-subtle bg-bg-base font-sans text-sm text-text-primary placeholder:text-text-muted focus-visible:ring-accent/50"
           rows={1}
         />
 
         <Button
           onClick={onSubmit}
           disabled={isLoading || (!value.trim() && !attachment)}
-          className="h-9 w-9 shrink-0 bg-c3-accent p-0 text-c3-bg hover:bg-c3-accent/90 disabled:opacity-40"
+          className="h-9 w-9 shrink-0 bg-accent p-0 text-bg-base hover:bg-accent/90 disabled:opacity-40"
         >
           <Send className="h-4 w-4" />
         </Button>

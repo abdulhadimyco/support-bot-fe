@@ -51,12 +51,12 @@ function ThinkingBlock({ content }: { content: string }) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="my-2 rounded-md border border-c3-border/50 bg-c3-surface2/50">
+    <div className="my-2 rounded-md border border-border-subtle/50 bg-surface2/50">
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="flex w-full items-center gap-2 px-3 py-2 text-xs text-c3-text-muted hover:text-c3-text-dim transition-colors"
+        className="flex w-full items-center gap-2 px-3 py-2 text-xs text-text-muted hover:text-text-dim transition-colors"
       >
-        <Brain className="h-3.5 w-3.5 text-c3-accent/60" />
+        <Brain className="h-3.5 w-3.5 text-accent/60" />
         <span className="font-medium">Thinking</span>
         {collapsed ? (
           <ChevronRight className="ml-auto h-3.5 w-3.5" />
@@ -65,7 +65,7 @@ function ThinkingBlock({ content }: { content: string }) {
         )}
       </button>
       {!collapsed && (
-        <div className="border-t border-c3-border/30 px-3 py-2 text-xs leading-relaxed text-c3-text-muted/80 whitespace-pre-wrap font-sans max-h-48 overflow-y-auto">
+        <div className="border-t border-border-subtle/30 px-3 py-2 text-xs leading-relaxed text-text-muted/80 whitespace-pre-wrap font-sans max-h-48 overflow-y-auto">
           {content}
         </div>
       )}
@@ -88,7 +88,7 @@ export function StreamingText({ content }: StreamingTextProps) {
         }
 
         return (
-          <div key={i} className="c3-markdown text-sm leading-relaxed text-c3-text">
+          <div key={i} className="app-markdown text-sm leading-relaxed text-text-primary">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {seg.content}
             </ReactMarkdown>

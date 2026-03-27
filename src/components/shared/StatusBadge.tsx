@@ -7,23 +7,23 @@ interface StatusBadgeProps {
 }
 
 const statusStyles: Record<string, string> = {
-  active: "border-c3-accent/40 bg-c3-accent/10 text-c3-accent",
-  completed: "border-c3-accent/40 bg-c3-accent/10 text-c3-accent",
-  paid: "border-c3-accent/40 bg-c3-accent/10 text-c3-accent",
-  pending: "border-c3-warning/40 bg-c3-warning/10 text-c3-warning",
-  processing: "border-c3-warning/40 bg-c3-warning/10 text-c3-warning",
-  canceled: "border-c3-danger/40 bg-c3-danger/10 text-c3-danger",
-  failed: "border-c3-danger/40 bg-c3-danger/10 text-c3-danger",
-  expired: "border-c3-danger/40 bg-c3-danger/10 text-c3-danger",
-  inactive: "border-c3-text-muted/40 bg-c3-text-muted/10 text-c3-text-muted",
-  closed: "border-c3-text-muted/40 bg-c3-text-muted/10 text-c3-text-muted",
+  active: "border-accent/40 bg-accent/10 text-accent",
+  completed: "border-accent/40 bg-accent/10 text-accent",
+  paid: "border-accent/40 bg-accent/10 text-accent",
+  pending: "border-warning/40 bg-warning/10 text-warning",
+  processing: "border-warning/40 bg-warning/10 text-warning",
+  canceled: "border-danger/40 bg-danger/10 text-danger",
+  failed: "border-danger/40 bg-danger/10 text-danger",
+  expired: "border-danger/40 bg-danger/10 text-danger",
+  inactive: "border-text-muted/40 bg-text-muted/10 text-text-muted",
+  closed: "border-text-muted/40 bg-text-muted/10 text-text-muted",
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
   const normalized = status.toLowerCase();
   const style =
     statusStyles[normalized] ??
-    "border-c3-text-muted/40 bg-c3-text-muted/10 text-c3-text-muted";
+    "border-text-muted/40 bg-text-muted/10 text-text-muted";
 
   return (
     <Badge

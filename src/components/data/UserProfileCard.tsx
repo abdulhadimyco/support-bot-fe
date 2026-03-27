@@ -50,17 +50,17 @@ export function UserProfileCard({ profile }: UserProfileCardProps) {
   ].filter((f) => f.value);
 
   return (
-    <Card className="border-c3-accent/15 bg-c3-surface p-4">
+    <Card className="border-accent/15 bg-surface p-4">
       <div className="mb-3 flex items-center gap-3">
-        <div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-c3-accent/30 to-c3-accent/10 font-mono text-xs font-bold text-c3-bg">
+        <div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-accent/30 to-accent/10 font-mono text-xs font-bold text-bg-base">
           {initials}
         </div>
         <div>
-          <div className="text-sm font-semibold text-c3-text">
+          <div className="text-sm font-semibold text-text-primary">
             {profile.name}
           </div>
           {profile.username && (
-            <div className="font-mono text-[11px] text-c3-text-muted">
+            <div className="font-mono text-[11px] text-text-muted">
               @{profile.username}
             </div>
           )}
@@ -68,7 +68,7 @@ export function UserProfileCard({ profile }: UserProfileCardProps) {
         {profile.deleted && (
           <Badge
             variant="outline"
-            className="ml-auto border-c3-danger/40 bg-c3-danger/10 font-mono text-[10px] text-c3-danger"
+            className="ml-auto border-danger/40 bg-danger/10 font-mono text-[10px] text-danger"
           >
             DELETED
           </Badge>
@@ -78,13 +78,13 @@ export function UserProfileCard({ profile }: UserProfileCardProps) {
       <div className="grid grid-cols-2 gap-x-4 gap-y-2">
         {fields.map((f) => (
           <div key={f.label}>
-            <div className="font-mono text-[9px] uppercase tracking-widest text-c3-text-muted/70">
+            <div className="font-mono text-[9px] uppercase tracking-widest text-text-muted/70">
               {f.label}
             </div>
-            <div className="flex items-center gap-1 font-mono text-xs text-c3-text-dim">
+            <div className="flex items-center gap-1 font-mono text-xs text-text-dim">
               <span className="truncate">{f.value}</span>
               {f.verified && (
-                <Check className="h-3 w-3 shrink-0 text-c3-accent" />
+                <Check className="h-3 w-3 shrink-0 text-accent" />
               )}
             </div>
           </div>

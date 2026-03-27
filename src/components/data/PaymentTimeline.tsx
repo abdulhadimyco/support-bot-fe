@@ -36,22 +36,22 @@ function fmtDateTime(dateStr: string): string {
 function chevronClass(status: string): string {
   const s = status.toLowerCase();
   if (["completed", "paid", "active", "success"].includes(s))
-    return "bg-c3-accent/50 hover:bg-c3-accent/70";
+    return "bg-accent/50 hover:bg-accent/70";
   if (["pending", "processing"].includes(s))
-    return "bg-c3-warning/[0.18] hover:bg-c3-warning/30";
+    return "bg-warning/[0.18] hover:bg-warning/30";
   if (["failed", "canceled", "cancelled", "refunded"].includes(s))
-    return "bg-c3-danger/[0.15] hover:bg-c3-danger/25";
-  return "bg-c3-text-muted/10 hover:bg-c3-text-muted/20";
+    return "bg-danger/[0.15] hover:bg-danger/25";
+  return "bg-text-muted/10 hover:bg-text-muted/20";
 }
 
 function statusLabelClass(status: string): string {
   const s = status.toLowerCase();
   if (["completed", "paid", "active", "success"].includes(s))
-    return "text-c3-accent";
-  if (["pending", "processing"].includes(s)) return "text-c3-warning";
+    return "text-accent";
+  if (["pending", "processing"].includes(s)) return "text-warning";
   if (["failed", "canceled", "cancelled", "refunded"].includes(s))
-    return "text-c3-danger";
-  return "text-c3-text-muted";
+    return "text-danger";
+  return "text-text-muted";
 }
 
 function fmtTotals(totals: Record<string, number>): string {
@@ -64,10 +64,10 @@ function DetailRow({ label, value }: { label: string; value?: string }) {
   if (!value) return null;
   return (
     <div className="flex items-baseline justify-between gap-2 py-0.5">
-      <span className="font-mono text-[10px] uppercase tracking-wider text-c3-text-muted">
+      <span className="font-mono text-[10px] uppercase tracking-wider text-text-muted">
         {label}
       </span>
-      <span className="text-right font-mono text-xs text-c3-text-dim">
+      <span className="text-right font-mono text-xs text-text-dim">
         {value}
       </span>
     </div>
@@ -82,15 +82,15 @@ function PaymentDetailPanel({
   onClose: () => void;
 }) {
   return (
-    <div className="animate-in slide-in-from-top-2 fade-in mt-2 rounded-lg border border-c3-border bg-gradient-to-b from-c3-surface2 to-c3-surface p-4">
+    <div className="animate-in slide-in-from-top-2 fade-in mt-2 rounded-lg border border-border-subtle bg-gradient-to-b from-surface2 to-surface p-4">
       <div className="mb-3 flex items-start justify-between">
         <div>
-          <div className="text-lg font-bold text-c3-text">
+          <div className="text-lg font-bold text-text-primary">
             {fmtAmt(payment.amount, payment.currency)}
           </div>
           <div className="flex items-center gap-2">
             <StatusBadge status={payment.status} />
-            <span className="font-mono text-[10px] text-c3-text-muted">
+            <span className="font-mono text-[10px] text-text-muted">
               {fmtDateTime(payment.date)}
             </span>
           </div>
@@ -98,7 +98,7 @@ function PaymentDetailPanel({
         <Button
           variant="ghost"
           size="icon"
-          className="h-6 w-6 text-c3-text-muted hover:text-c3-text"
+          className="h-6 w-6 text-text-muted hover:text-text-primary"
           onClick={onClose}
         >
           <X className="h-3.5 w-3.5" />
@@ -107,7 +107,7 @@ function PaymentDetailPanel({
 
       <div className="grid grid-cols-2 gap-x-6">
         <div>
-          <div className="mb-1 font-mono text-[9px] uppercase tracking-widest text-c3-accent">
+          <div className="mb-1 font-mono text-[9px] uppercase tracking-widest text-accent">
             Payment Info
           </div>
           <DetailRow label="Gateway" value={payment.gateway} />
@@ -115,7 +115,7 @@ function PaymentDetailPanel({
           <DetailRow label="ID" value={payment.id} />
         </div>
         <div>
-          <div className="mb-1 font-mono text-[9px] uppercase tracking-widest text-c3-accent">
+          <div className="mb-1 font-mono text-[9px] uppercase tracking-widest text-accent">
             Subscription
           </div>
           <DetailRow label="Plan" value={payment.plan} />
@@ -142,16 +142,16 @@ function TimelineSection({ section }: { section: PaymentSection }) {
       {/* Section header */}
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-c3-text">
+          <span className="text-sm font-semibold text-text-primary">
             {section.licenseName}
           </span>
           <StatusBadge status={section.status} />
-          <span className="font-mono text-[10px] text-c3-text-muted">
+          <span className="font-mono text-[10px] text-text-muted">
             {section.payments.length} payment
             {section.payments.length !== 1 ? "s" : ""}
           </span>
         </div>
-        <div className="flex items-center gap-3 text-right font-mono text-[10px] text-c3-text-muted">
+        <div className="flex items-center gap-3 text-right font-mono text-[10px] text-text-muted">
           {fmtTotals(section.totalsByCurrency)}
           {section.expiryDate && (
             <span>Exp: {fmtDate(section.expiryDate)}</span>
@@ -175,17 +175,17 @@ function TimelineSection({ section }: { section: PaymentSection }) {
                 "flex shrink-0 flex-col items-center justify-center px-4 py-2 transition-all",
                 "clip-path-chevron min-w-[90px]",
                 chevronClass(p.status),
-                selectedPayment?.id === p.id && "ring-1 ring-c3-accent",
+                selectedPayment?.id === p.id && "ring-1 ring-accent",
               )}
               style={{
                 clipPath:
                   "polygon(0% 0%, calc(100% - 10px) 0%, 100% 50%, calc(100% - 10px) 100%, 0% 100%, 10px 50%)",
               }}
             >
-              <span className="font-mono text-[13px] font-bold text-c3-text">
+              <span className="font-mono text-[13px] font-bold text-text-primary">
                 {fmtAmt(p.amount, p.currency)}
               </span>
-              <span className="font-mono text-[10px] text-c3-text-muted">
+              <span className="font-mono text-[10px] text-text-muted">
                 {fmtDate(p.date)}
               </span>
               <span
@@ -222,15 +222,15 @@ export function PaymentTimeline({ sections }: PaymentTimelineProps) {
   }
 
   return (
-    <Card className="border-c3-border bg-c3-surface p-4">
+    <Card className="border-border-subtle bg-surface p-4">
       {sections.map((section, i) => (
         <TimelineSection key={i} section={section} />
       ))}
 
       {/* Footer totals */}
-      <div className="flex flex-wrap items-center gap-3 border-t border-c3-border pt-2 font-mono text-[10px] text-c3-text-muted">
+      <div className="flex flex-wrap items-center gap-3 border-t border-border-subtle pt-2 font-mono text-[10px] text-text-muted">
         <span>
-          Total: <strong className="text-c3-text">{fmtTotals(totalsByCurrency)}</strong>
+          Total: <strong className="text-text-primary">{fmtTotals(totalsByCurrency)}</strong>
         </span>
         <span>{allPayments.length} payment records</span>
       </div>

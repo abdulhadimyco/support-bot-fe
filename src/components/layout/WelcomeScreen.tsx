@@ -26,7 +26,7 @@ const suggestions = [
   },
   {
     icon: HelpCircle,
-    title: "What can C3PA do?",
+    title: "What can Sherlock do?",
     description: "Learn about available tools",
     prompt: "What can you do? List all your capabilities.",
   },
@@ -35,15 +35,15 @@ const suggestions = [
 export function WelcomeScreen({ onSuggestion }: WelcomeScreenProps) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center p-8">
-      <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-c3-accent/15">
-        <span className="font-mono text-lg font-semibold text-c3-accent">
-          C3
+      <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-accent/15">
+        <span className="font-mono text-lg font-semibold text-accent">
+          SH
         </span>
       </div>
-      <h2 className="mb-1 text-xl font-semibold text-c3-text">
-        C3PA Support Assistant
+      <h2 className="mb-1 text-xl font-semibold text-text-primary">
+        Sherlock
       </h2>
-      <p className="mb-8 text-sm text-c3-text-muted">
+      <p className="mb-8 text-sm text-text-muted">
         How can I help you today?
       </p>
 
@@ -52,11 +52,11 @@ export function WelcomeScreen({ onSuggestion }: WelcomeScreenProps) {
           <Card
             key={s.title}
             onClick={() => onSuggestion(s.prompt)}
-            className="cursor-pointer border-c3-border bg-c3-surface p-4 transition-colors hover:border-c3-accent/30 hover:bg-c3-surface2"
+            className="cursor-pointer border-border-subtle bg-surface p-4 transition-colors hover:border-accent/30 hover:bg-surface2"
           >
-            <s.icon className="mb-2 h-5 w-5 text-c3-accent" />
-            <div className="text-sm font-medium text-c3-text">{s.title}</div>
-            <div className="mt-0.5 text-xs text-c3-text-muted">
+            <s.icon className="mb-2 h-5 w-5 text-accent" />
+            <div className="text-sm font-medium text-text-primary">{s.title}</div>
+            <div className="mt-0.5 text-xs text-text-muted">
               {s.description}
             </div>
           </Card>

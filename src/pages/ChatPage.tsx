@@ -48,7 +48,7 @@ export function ChatPage() {
           activeThreadId={threadId}
           addThreadRef={addThreadRef}
         />
-        <main className="flex flex-1 flex-col overflow-hidden bg-c3-bg">
+        <main className="flex flex-1 flex-col overflow-hidden bg-bg-base">
           <ChatInterface
             threadId={threadId}
             onThreadCreated={handleThreadCreated}

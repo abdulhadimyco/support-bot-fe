@@ -57,10 +57,10 @@ export function ToolResultRenderer({
   // Default: render as a small code block
   return (
     <details className="mt-1">
-      <summary className="cursor-pointer font-mono text-xs text-c3-text-muted hover:text-c3-text-dim">
+      <summary className="cursor-pointer font-mono text-xs text-text-muted hover:text-text-dim">
         Tool result: {toolName}
       </summary>
-      <pre className="mt-1 max-h-48 overflow-auto rounded bg-c3-bg p-2 font-mono text-[11px] text-c3-text-dim">
+      <pre className="mt-1 max-h-48 overflow-auto rounded bg-bg-base p-2 font-mono text-[11px] text-text-dim">
         {JSON.stringify(result, null, 2)}
       </pre>
     </details>

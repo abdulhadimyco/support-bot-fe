@@ -73,7 +73,7 @@ function DayDetailDialog({
 
   return (
     <Dialog open={!!day} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="border-c3-border bg-c3-surface text-c3-text sm:max-w-md">
+      <DialogContent className="border-border-subtle bg-surface text-text-primary sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="font-mono text-sm">
             Viewing Activity — {day.date}
@@ -83,32 +83,32 @@ function DayDetailDialog({
           {day.entries.map((entry, i) => (
             <div
               key={i}
-              className="flex items-center justify-between rounded border border-c3-border bg-c3-bg px-3 py-2"
+              className="flex items-center justify-between rounded border border-border-subtle bg-bg-base px-3 py-2"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span
                     className={cn(
                       "h-2 w-2 shrink-0 rounded-full",
-                      entry.type === "live" ? "bg-c3-live" : "bg-c3-vod",
+                      entry.type === "live" ? "bg-live" : "bg-vod",
                     )}
                   />
-                  <span className="truncate text-xs font-medium text-c3-text">
+                  <span className="truncate text-xs font-medium text-text-primary">
                     {entry.title}
                   </span>
                 </div>
                 {entry.clientDevice && (
-                  <div className="mt-0.5 pl-4 font-mono text-[10px] text-c3-text-muted">
+                  <div className="mt-0.5 pl-4 font-mono text-[10px] text-text-muted">
                     {entry.clientDevice}
                   </div>
                 )}
               </div>
               <div className="flex shrink-0 items-center gap-2 text-right">
-                <span className="font-mono text-[10px] text-c3-text-dim">
+                <span className="font-mono text-[10px] text-text-dim">
                   {fmtDur(entry.duration)}
                 </span>
                 {entry.viewCount != null && (
-                  <span className="font-mono text-[10px] text-c3-text-muted">
+                  <span className="font-mono text-[10px] text-text-muted">
                     {entry.viewCount}x
                   </span>
                 )}
@@ -153,45 +153,45 @@ export function WatchCalendar({ data: initialData }: WatchCalendarProps) {
   );
 
   return (
-    <Card className="border-c3-border bg-c3-surface p-4">
+    <Card className="border-border-subtle bg-surface p-4">
       {/* User info */}
       <div className="mb-3">
-        <div className="font-mono text-[9px] uppercase tracking-widest text-c3-accent">
+        <div className="font-mono text-[9px] uppercase tracking-widest text-accent">
           Viewing Activity
         </div>
-        <div className="text-sm font-semibold text-c3-text">{userName}</div>
-        <div className="font-mono text-xs text-c3-text-muted">{userEmail}</div>
+        <div className="text-sm font-semibold text-text-primary">{userName}</div>
+        <div className="font-mono text-xs text-text-muted">{userEmail}</div>
       </div>
 
       {/* Stats bar */}
       <div className="mb-3 flex flex-wrap gap-2">
         <Badge
           variant="outline"
-          className="border-c3-accent/30 font-mono text-[10px] text-c3-text-dim"
+          className="border-accent/30 font-mono text-[10px] text-text-dim"
         >
           Total:{" "}
-          <strong className="ml-1 text-c3-text">{fmtDur(stats.totalTime)}</strong>
+          <strong className="ml-1 text-text-primary">{fmtDur(stats.totalTime)}</strong>
         </Badge>
         <Badge
           variant="outline"
-          className="border-c3-live/30 font-mono text-[10px] text-c3-text-dim"
+          className="border-live/30 font-mono text-[10px] text-text-dim"
         >
-          Live: <strong className="ml-1 text-c3-text">{stats.liveCount}</strong>{" "}
+          Live: <strong className="ml-1 text-text-primary">{stats.liveCount}</strong>{" "}
           ({fmtDur(stats.liveDuration)})
         </Badge>
         <Badge
           variant="outline"
-          className="border-c3-vod/30 font-mono text-[10px] text-c3-text-dim"
+          className="border-vod/30 font-mono text-[10px] text-text-dim"
         >
-          VOD: <strong className="ml-1 text-c3-text">{stats.vodCount}</strong> (
+          VOD: <strong className="ml-1 text-text-primary">{stats.vodCount}</strong> (
           {fmtDur(stats.vodDuration)})
         </Badge>
         <Badge
           variant="outline"
-          className="border-c3-border font-mono text-[10px] text-c3-text-dim"
+          className="border-border-subtle font-mono text-[10px] text-text-dim"
         >
           Active Days:{" "}
-          <strong className="ml-1 text-c3-text">{stats.activeDays}</strong>
+          <strong className="ml-1 text-text-primary">{stats.activeDays}</strong>
         </Badge>
       </div>
 
@@ -200,19 +200,19 @@ export function WatchCalendar({ data: initialData }: WatchCalendarProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 text-c3-text-muted hover:text-c3-text"
+          className="h-7 w-7 text-text-muted hover:text-text-primary"
           onClick={() => navigateMonth(-1)}
           disabled={false}
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        <span className="font-mono text-xs font-medium text-c3-text">
+        <span className="font-mono text-xs font-medium text-text-primary">
           {MONTH_NAMES[month - 1]} {year}
         </span>
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 text-c3-text-muted hover:text-c3-text"
+          className="h-7 w-7 text-text-muted hover:text-text-primary"
           onClick={() => navigateMonth(1)}
           disabled={false}
         >
@@ -221,12 +221,12 @@ export function WatchCalendar({ data: initialData }: WatchCalendarProps) {
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-px rounded border border-c3-border bg-c3-border">
+      <div className="grid grid-cols-7 gap-px rounded border border-border-subtle bg-border-subtle">
         {/* Day headers */}
         {DAYS_OF_WEEK.map((d) => (
           <div
             key={d}
-            className="bg-c3-surface2 py-1 text-center font-mono text-[9px] uppercase tracking-wider text-c3-text-muted"
+            className="bg-surface2 py-1 text-center font-mono text-[9px] uppercase tracking-wider text-text-muted"
           >
             {d}
           </div>
@@ -237,11 +237,11 @@ export function WatchCalendar({ data: initialData }: WatchCalendarProps) {
           <div
             key={i}
             className={cn(
-              "min-h-[80px] bg-c3-surface p-1",
-              cell.day === null && "bg-c3-bg/50",
+              "min-h-[80px] bg-surface p-1",
+              cell.day === null && "bg-bg-base/50",
               cell.data &&
                 cell.data.entries.length > 0 &&
-                "cursor-pointer hover:bg-c3-surface2",
+                "cursor-pointer hover:bg-surface2",
             )}
             onClick={() => {
               if (cell.data && cell.data.entries.length > 0)
@@ -250,7 +250,7 @@ export function WatchCalendar({ data: initialData }: WatchCalendarProps) {
           >
             {cell.day !== null && (
               <>
-                <div className="mb-0.5 font-mono text-[10px] text-c3-text-muted">
+                <div className="mb-0.5 font-mono text-[10px] text-text-muted">
                   {cell.day}
                 </div>
                 {cell.data?.entries.slice(0, 2).map((entry, j) => (
@@ -259,15 +259,15 @@ export function WatchCalendar({ data: initialData }: WatchCalendarProps) {
                     className={cn(
                       "mb-0.5 rounded px-1 py-0.5 text-[9px] leading-tight text-white",
                       entry.type === "live"
-                        ? "bg-c3-live/80"
-                        : "bg-c3-vod/80",
+                        ? "bg-live/80"
+                        : "bg-vod/80",
                     )}
                   >
                     {truncate(entry.title)} · {fmtDur(entry.duration)}
                   </div>
                 ))}
                 {cell.data && cell.data.entries.length > 2 && (
-                  <div className="px-1 font-mono text-[8px] text-c3-text-muted">
+                  <div className="px-1 font-mono text-[8px] text-text-muted">
                     +{cell.data.entries.length - 2} more
                   </div>
                 )}
@@ -278,13 +278,13 @@ export function WatchCalendar({ data: initialData }: WatchCalendarProps) {
       </div>
 
       {/* Legend */}
-      <div className="mt-2 flex items-center gap-4 font-mono text-[10px] text-c3-text-muted">
+      <div className="mt-2 flex items-center gap-4 font-mono text-[10px] text-text-muted">
         <div className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-c3-live" />
+          <span className="h-2 w-2 rounded-full bg-live" />
           Live
         </div>
         <div className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-c3-vod" />
+          <span className="h-2 w-2 rounded-full bg-vod" />
           VOD
         </div>
       </div>

@@ -5,22 +5,22 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  /* C3PA custom palette */
-  --color-c3-bg: #0e0f11;
-  --color-c3-surface: #16181c;
-  --color-c3-surface2: #1e2128;
-  --color-c3-border: #2a2d35;
-  --color-c3-accent: #00e5a0;
-  --color-c3-accent-dim: rgba(0, 229, 160, 0.12);
-  --color-c3-accent-glow: rgba(0, 229, 160, 0.25);
-  --color-c3-text: #e8eaf0;
-  --color-c3-text-muted: #6b7280;
-  --color-c3-text-dim: #9ca3af;
-  --color-c3-danger: #ff4d6a;
-  --color-c3-warning: #fbbf24;
-  --color-c3-info: #60a5fa;
-  --color-c3-live: #7c3aed;
-  --color-c3-vod: #2563eb;
+  /* Custom palette */
+  --color-bg-base: #0e0f11;
+  --color-surface: #16181c;
+  --color-surface2: #1e2128;
+  --color-border-subtle: #2a2d35;
+  --color-accent: #00e5a0;
+  --color-accent-dim: rgba(0, 229, 160, 0.12);
+  --color-accent-glow: rgba(0, 229, 160, 0.25);
+  --color-text-primary: #e8eaf0;
+  --color-text-muted: #6b7280;
+  --color-text-dim: #9ca3af;
+  --color-danger: #ff4d6a;
+  --color-warning: #fbbf24;
+  --color-info: #60a5fa;
+  --color-live: #7c3aed;
+  --color-vod: #2563eb;
 
   --font-mono: "IBM Plex Mono", monospace;
   --font-sans: "IBM Plex Sans", sans-serif;
@@ -68,40 +68,40 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Always dark — C3PA themed. Shadcn vars reference the c3 palette above. */
+/* Always dark — App themed. Shadcn vars reference the palette above. */
 :root {
-  --background: var(--color-c3-bg);
-  --foreground: var(--color-c3-text);
-  --card: var(--color-c3-surface);
-  --card-foreground: var(--color-c3-text);
-  --popover: var(--color-c3-surface);
-  --popover-foreground: var(--color-c3-text);
-  --primary: var(--color-c3-accent);
-  --primary-foreground: var(--color-c3-bg);
-  --secondary: var(--color-c3-surface2);
-  --secondary-foreground: var(--color-c3-text);
-  --muted: var(--color-c3-surface2);
-  --muted-foreground: var(--color-c3-text-muted);
-  --accent: var(--color-c3-surface2);
-  --accent-foreground: var(--color-c3-text);
-  --destructive: var(--color-c3-danger);
-  --border: var(--color-c3-border);
-  --input: var(--color-c3-border);
-  --ring: var(--color-c3-accent);
-  --chart-1: var(--color-c3-accent);
-  --chart-2: var(--color-c3-info);
-  --chart-3: var(--color-c3-warning);
-  --chart-4: var(--color-c3-live);
-  --chart-5: var(--color-c3-danger);
+  --background: var(--color-bg-base);
+  --foreground: var(--color-text-primary);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-text-primary);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-text-primary);
+  --primary: var(--color-accent);
+  --primary-foreground: var(--color-bg-base);
+  --secondary: var(--color-surface2);
+  --secondary-foreground: var(--color-text-primary);
+  --muted: var(--color-surface2);
+  --muted-foreground: var(--color-text-muted);
+  --accent: var(--color-surface2);
+  --accent-foreground: var(--color-text-primary);
+  --destructive: var(--color-danger);
+  --border: var(--color-border-subtle);
+  --input: var(--color-border-subtle);
+  --ring: var(--color-accent);
+  --chart-1: var(--color-accent);
+  --chart-2: var(--color-info);
+  --chart-3: var(--color-warning);
+  --chart-4: var(--color-live);
+  --chart-5: var(--color-danger);
   --radius: 0.5rem;
-  --sidebar: var(--color-c3-surface);
-  --sidebar-foreground: var(--color-c3-text);
-  --sidebar-primary: var(--color-c3-accent);
-  --sidebar-primary-foreground: var(--color-c3-bg);
-  --sidebar-accent: var(--color-c3-surface2);
-  --sidebar-accent-foreground: var(--color-c3-text);
-  --sidebar-border: var(--color-c3-border);
-  --sidebar-ring: var(--color-c3-accent);
+  --sidebar: var(--color-surface);
+  --sidebar-foreground: var(--color-text-primary);
+  --sidebar-primary: var(--color-accent);
+  --sidebar-primary-foreground: var(--color-bg-base);
+  --sidebar-accent: var(--color-surface2);
+  --sidebar-accent-foreground: var(--color-text-primary);
+  --sidebar-border: var(--color-border-subtle);
+  --sidebar-ring: var(--color-accent);
 }
 
 html,
@@ -129,12 +129,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-c3-border);
+  background: var(--color-border-subtle);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-c3-text-muted);
+  background: var(--color-text-muted);
 }
 
 @layer base {
@@ -147,115 +147,115 @@ body {
 }
 
 /* Markdown rendering for chat messages — inherits IBM Plex Sans */
-.c3-markdown {
+.app-markdown {
   font-family: var(--font-sans);
   line-height: 1.6;
 }
 
-.c3-markdown p {
+.app-markdown p {
   margin: 0.25em 0;
 }
 
-.c3-markdown h1,
-.c3-markdown h2,
-.c3-markdown h3,
-.c3-markdown h4 {
+.app-markdown h1,
+.app-markdown h2,
+.app-markdown h3,
+.app-markdown h4 {
   font-weight: 600;
   margin-top: 0.75em;
   margin-bottom: 0.25em;
-  color: var(--color-c3-text);
+  color: var(--color-text-primary);
 }
 
-.c3-markdown h1 { font-size: 1.25em; }
-.c3-markdown h2 { font-size: 1.1em; }
-.c3-markdown h3 { font-size: 1em; }
+.app-markdown h1 { font-size: 1.25em; }
+.app-markdown h2 { font-size: 1.1em; }
+.app-markdown h3 { font-size: 1em; }
 
-.c3-markdown strong {
+.app-markdown strong {
   font-weight: 600;
-  color: var(--color-c3-text);
+  color: var(--color-text-primary);
 }
 
-.c3-markdown em {
+.app-markdown em {
   font-style: italic;
-  color: var(--color-c3-text-dim);
+  color: var(--color-text-dim);
 }
 
-.c3-markdown a {
-  color: var(--color-c3-accent);
+.app-markdown a {
+  color: var(--color-accent);
   text-decoration: none;
 }
-.c3-markdown a:hover {
+.app-markdown a:hover {
   text-decoration: underline;
 }
 
-.c3-markdown code {
+.app-markdown code {
   font-family: var(--font-mono);
   font-size: 0.85em;
-  background: var(--color-c3-surface2);
-  color: var(--color-c3-accent);
+  background: var(--color-surface2);
+  color: var(--color-accent);
   padding: 0.15em 0.35em;
   border-radius: 0.25rem;
 }
 
-.c3-markdown pre {
-  background: var(--color-c3-surface2);
-  border: 1px solid var(--color-c3-border);
+.app-markdown pre {
+  background: var(--color-surface2);
+  border: 1px solid var(--color-border-subtle);
   border-radius: 0.375rem;
   padding: 0.75em 1em;
   overflow-x: auto;
   margin: 0.5em 0;
 }
 
-.c3-markdown pre code {
+.app-markdown pre code {
   background: none;
   padding: 0;
-  color: var(--color-c3-text-dim);
+  color: var(--color-text-dim);
   font-size: 0.8em;
   line-height: 1.5;
 }
 
-.c3-markdown ul,
-.c3-markdown ol {
+.app-markdown ul,
+.app-markdown ol {
   margin: 0.35em 0;
   padding-left: 1.5em;
 }
 
-.c3-markdown li {
+.app-markdown li {
   margin: 0.15em 0;
 }
 
-.c3-markdown ul { list-style-type: disc; }
-.c3-markdown ol { list-style-type: decimal; }
+.app-markdown ul { list-style-type: disc; }
+.app-markdown ol { list-style-type: decimal; }
 
-.c3-markdown blockquote {
-  border-left: 3px solid color-mix(in srgb, var(--color-c3-accent) 40%, transparent);
+.app-markdown blockquote {
+  border-left: 3px solid color-mix(in srgb, var(--color-accent) 40%, transparent);
   padding-left: 0.75em;
   margin: 0.5em 0;
-  color: var(--color-c3-text-dim);
+  color: var(--color-text-dim);
   font-style: italic;
 }
 
-.c3-markdown hr {
+.app-markdown hr {
   border: none;
-  border-top: 1px solid var(--color-c3-border);
+  border-top: 1px solid var(--color-border-subtle);
   margin: 0.75em 0;
 }
 
-.c3-markdown table {
+.app-markdown table {
   width: 100%;
   border-collapse: collapse;
   margin: 0.5em 0;
   font-size: 0.85em;
 }
 
-.c3-markdown th,
-.c3-markdown td {
-  border: 1px solid var(--color-c3-border);
+.app-markdown th,
+.app-markdown td {
+  border: 1px solid var(--color-border-subtle);
   padding: 0.35em 0.6em;
   text-align: left;
 }
 
-.c3-markdown th {
-  background: var(--color-c3-surface2);
+.app-markdown th {
+  background: var(--color-surface2);
   font-weight: 600;
 }
