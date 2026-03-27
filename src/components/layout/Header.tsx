@@ -42,21 +42,21 @@ export function Header() {
   }
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-c3-border bg-c3-surface px-4">
+    <header className="flex h-14 items-center justify-between border-b border-bot-border bg-bot-surface px-4">
       <div className="flex items-center gap-3">
-       
+
         <div className="flex items-center gap-2">
-          <span className="text-lg font-semibold text-c3-text">myco</span>
+          <span className="glow-accent text-lg font-semibold text-bot-accent">Sherlock</span>
           <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-c3-accent opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-c3-accent" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-bot-accent opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-bot-accent" />
           </span>
         </div>
         <Badge
           variant="outline"
-          className="border-c3-accent/30 bg-c3-accent-dim font-mono text-[10px] tracking-widest text-c3-accent"
+          className="glow-accent-border border-bot-accent/30 bg-bot-accent-dim font-mono text-[10px] tracking-widest text-bot-accent"
         >
-          C3PA ONLINE
+          SHERLOCK ONLINE
         </Badge>
       </div>
 
@@ -67,7 +67,7 @@ export function Header() {
               <TooltipTrigger
                 onClick={handleDownloadReport}
                 disabled={downloading}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-c3-text-muted hover:bg-accent hover:text-c3-text"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-bot-text-muted hover:bg-bot-accent hover:text-bot-text"
               >
                 {downloading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -83,9 +83,9 @@ export function Header() {
         )}
 
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-2 rounded-md px-2 py-1.5 text-c3-text-muted hover:bg-accent hover:text-c3-text">
+          <DropdownMenuTrigger className="flex items-center gap-2 rounded-md px-2 py-1.5 text-bot-text-muted hover:bg-bot-accent hover:text-bot-text">
               {agent && (
-                <div className="flex h-6 w-6 items-center justify-center rounded-md bg-c3-accent/15 font-mono text-[9px] font-semibold text-c3-accent">
+                <div className="flex h-6 w-6 items-center justify-center rounded-md bg-bot-accent/15 font-mono text-[9px] font-semibold text-bot-accent">
                   {agent.name
                     .split(" ")
                     .map((n) => n[0])
@@ -101,24 +101,24 @@ export function Header() {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="w-48 border-c3-border bg-c3-surface"
+            className="w-48 border-bot-border bg-bot-surface"
           >
             {agent && (
               <>
                 <div className="px-2 py-1.5">
-                  <div className="text-xs font-medium text-c3-text">
+                  <div className="text-xs font-medium text-bot-text">
                     {agent.name}
                   </div>
-                  <div className="font-mono text-[10px] text-c3-text-muted">
+                  <div className="font-mono text-[10px] text-bot-text-muted">
                     {agent.email}
                   </div>
                 </div>
-                <DropdownMenuSeparator className="bg-c3-border" />
+                <DropdownMenuSeparator className="bg-border-subtle" />
               </>
             )}
             <DropdownMenuItem
               onClick={logout}
-              className="text-xs text-c3-danger focus:bg-c3-danger/10 focus:text-c3-danger"
+              className="text-xs text-bot-danger focus:bg-bot-danger/10 focus:text-bot-danger"
             >
               <LogOut className="mr-2 h-3.5 w-3.5" />
               Logout

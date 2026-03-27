@@ -40,17 +40,17 @@ export function Sidebar({
   const { agent, logout } = useAuth();
 
   return (
-    <aside className="flex w-60 flex-col border-r border-c3-border bg-c3-surface">
+    <aside className="flex w-60 flex-col border-r border-bot-border bg-bot-surface">
       <div className="flex-1 p-3">
         <Button
           onClick={onNewThread}
-          className="mb-4 w-full bg-c3-accent text-c3-bg hover:bg-c3-accent/90"
+          className="mb-4 w-full bg-bot-accent text-bg-base hover:bg-bot-accent/90"
         >
           <Plus className="mr-2 h-4 w-4" />
           New Thread
         </Button>
 
-        <div className="mb-2 px-2 font-mono text-[9px] uppercase tracking-widest text-c3-text-muted">
+        <div className="mb-2 px-2 font-mono text-[9px] uppercase tracking-widest text-bot-text-muted">
           Quick Actions
         </div>
 
@@ -59,7 +59,7 @@ export function Sidebar({
             <button
               key={action.id}
               onClick={() => onQuickAction?.(action.id)}
-              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-c3-text-dim transition-colors hover:bg-c3-surface2 hover:text-c3-text"
+              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-bot-text-dim transition-colors hover:bg-bot-surface2 hover:text-bot-text"
             >
               <action.icon className="h-3.5 w-3.5" />
               {action.label}
@@ -67,26 +67,26 @@ export function Sidebar({
           ))}
         </div>
 
-        <Separator className="my-3 bg-c3-border" />
+        <Separator className="my-3 bg-border-subtle" />
 
         <div className="space-y-0.5">
           <button
             onClick={onGenerateReport}
-            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-c3-text-dim transition-colors hover:bg-c3-surface2 hover:text-c3-text"
+            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-bot-text-dim transition-colors hover:bg-bot-surface2 hover:text-bot-text"
           >
             <FileText className="h-3.5 w-3.5" />
             Generate Report
           </button>
           <button
             onClick={onDownloadReport}
-            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-c3-text-dim transition-colors hover:bg-c3-surface2 hover:text-c3-text"
+            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-bot-text-dim transition-colors hover:bg-bot-surface2 hover:text-bot-text"
           >
             <Download className="h-3.5 w-3.5" />
             Download PDF
           </button>
           <button
             onClick={() => navigate("/history")}
-            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-c3-text-dim transition-colors hover:bg-c3-surface2 hover:text-c3-text"
+            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-bot-text-dim transition-colors hover:bg-bot-surface2 hover:text-bot-text"
           >
             <History className="h-3.5 w-3.5" />
             View History
@@ -94,9 +94,9 @@ export function Sidebar({
         </div>
       </div>
 
-      <div className="border-t border-c3-border p-3">
+      <div className="border-t border-bot-border p-3">
         <div className="mb-2 flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-c3-accent/15 font-mono text-xs font-medium text-c3-accent">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-bot-accent/15 font-mono text-xs font-medium text-bot-accent">
             {agent?.name
               .split(" ")
               .map((n) => n[0])
@@ -105,10 +105,10 @@ export function Sidebar({
               .toUpperCase() ?? "??"}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-xs font-medium text-c3-text">
+            <div className="truncate text-xs font-medium text-bot-text">
               {agent?.name}
             </div>
-            <div className="truncate font-mono text-[10px] text-c3-text-muted">
+            <div className="truncate font-mono text-[10px] text-bot-text-muted">
               {agent?.email}
             </div>
           </div>
@@ -117,7 +117,7 @@ export function Sidebar({
           variant="ghost"
           size="sm"
           onClick={logout}
-          className="w-full justify-start text-c3-text-muted hover:text-c3-danger"
+          className="w-full justify-start text-bot-text-muted hover:text-bot-danger"
         >
           <LogOut className="mr-2 h-3.5 w-3.5" />
           Logout

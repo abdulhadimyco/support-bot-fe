@@ -4,9 +4,9 @@ import { WatchCalendar } from "@/components/data/WatchCalendar";
 import { SubscriptionCard } from "@/components/data/SubscriptionCard";
 import type {
   UserProfile,
-  PaymentSection,
+  PaymentHistoryResponse,
   WatchCalendarData,
-  SubscriptionInfo,
+  SubscriptionResponse,
 } from "@/lib/types";
 
 interface ToolResultRendererProps {
@@ -22,45 +22,52 @@ export function ToolResultRenderer({
 
   const data = result as Record<string, unknown>;
 
-  switch (toolName) {
-    case "getUserByEmail":
-    case "getUserByPhone":
-    case "lookupUser":
-      if (data.user_id || data.email) {
-        return <UserProfileCard profile={data as unknown as UserProfile} />;
-      }
-      break;
+  // Error results — skip rendering
+  if (data.error) return null;
 
-    case "getPaymentHistory":
-      if (data.sections && Array.isArray(data.sections)) {
-        return (
-          <PaymentTimeline
-            sections={data.sections as PaymentSection[]}
-          />
-        );
-      }
-      break;
-
-    case "getWatchCalendarMonth":
-      if (data.days && data.year != null) {
-        return <WatchCalendar data={data as unknown as WatchCalendarData} />;
-      }
-      break;
-
-    case "checkSubscription":
-      if (data.licenseName || data.status) {
-        return <SubscriptionCard info={data as unknown as SubscriptionInfo} />;
-      }
-      break;
+  // Payment history — has license_timelines array
+  if (
+    toolName === "getPaymentHistory" ||
+    (Array.isArray(data.license_timelines) && data.payment_count != null)
+  ) {
+    return <PaymentTimeline data={data as unknown as PaymentHistoryResponse} />;
   }
 
-  // Default: render as a small code block
+  // Watch calendar month — has days array + year/month
+  if (
+    toolName === "getWatchCalendarMonth" ||
+    (Array.isArray(data.days) && data.year != null && data.month != null)
+  ) {
+    return <WatchCalendar data={data as unknown as WatchCalendarData} />;
+  }
+
+  // Subscription check — has subscriptions array
+  if (
+    toolName === "checkSubscription" ||
+    (Array.isArray(data.subscriptions) && data.subscription_count != null)
+  ) {
+    return (
+      <SubscriptionCard data={data as unknown as SubscriptionResponse} />
+    );
+  }
+
+  // User profile — has user_id + email/name
+  if (
+    toolName === "getUserByEmail" ||
+    toolName === "getUserByPhone" ||
+    toolName === "lookupUser" ||
+    (data.user_id && (data.email || data.name))
+  ) {
+    return <UserProfileCard profile={data as unknown as UserProfile} />;
+  }
+
+  // Default: collapsible JSON
   return (
     <details className="mt-1">
-      <summary className="cursor-pointer font-mono text-xs text-c3-text-muted hover:text-c3-text-dim">
+      <summary className="cursor-pointer font-mono text-xs text-bot-text-muted hover:text-bot-text-dim">
         Tool result: {toolName}
       </summary>
-      <pre className="mt-1 max-h-48 overflow-auto rounded bg-c3-bg p-2 font-mono text-[11px] text-c3-text-dim">
+      <pre className="mt-1 max-h-48 overflow-auto rounded bg-bot-bg p-2 font-mono text-[11px] text-bot-text-dim">
         {JSON.stringify(result, null, 2)}
       </pre>
     </details>

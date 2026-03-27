@@ -7,23 +7,23 @@ interface StatusBadgeProps {
 }
 
 const statusStyles: Record<string, string> = {
-  active: "border-c3-accent/40 bg-c3-accent/10 text-c3-accent",
-  completed: "border-c3-accent/40 bg-c3-accent/10 text-c3-accent",
-  paid: "border-c3-accent/40 bg-c3-accent/10 text-c3-accent",
-  pending: "border-c3-warning/40 bg-c3-warning/10 text-c3-warning",
-  processing: "border-c3-warning/40 bg-c3-warning/10 text-c3-warning",
-  canceled: "border-c3-danger/40 bg-c3-danger/10 text-c3-danger",
-  failed: "border-c3-danger/40 bg-c3-danger/10 text-c3-danger",
-  expired: "border-c3-danger/40 bg-c3-danger/10 text-c3-danger",
-  inactive: "border-c3-text-muted/40 bg-c3-text-muted/10 text-c3-text-muted",
-  closed: "border-c3-text-muted/40 bg-c3-text-muted/10 text-c3-text-muted",
+  active: "border-bot-accent/40 bg-bot-accent/10 text-bot-accent",
+  completed: "border-bot-accent/40 bg-bot-accent/10 text-bot-accent",
+  paid: "border-bot-accent/40 bg-bot-accent/10 text-bot-accent",
+  pending: "border-bot-warning/40 bg-bot-warning/10 text-bot-warning",
+  processing: "border-bot-warning/40 bg-bot-warning/10 text-bot-warning",
+  canceled: "border-bot-danger/40 bg-bot-danger/10 text-bot-danger",
+  failed: "border-bot-danger/40 bg-bot-danger/10 text-bot-danger",
+  expired: "border-bot-danger/40 bg-bot-danger/10 text-bot-danger",
+  inactive: "border-bot-text-muted/40 bg-bot-text-muted/10 text-bot-text-muted",
+  closed: "border-bot-text-muted/40 bg-bot-text-muted/10 text-bot-text-muted",
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
   const normalized = status.toLowerCase();
   const style =
     statusStyles[normalized] ??
-    "border-c3-text-muted/40 bg-c3-text-muted/10 text-c3-text-muted";
+    "border-bot-text-muted/40 bg-bot-text-muted/10 text-bot-text-muted";
 
   return (
     <Badge

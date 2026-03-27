@@ -197,8 +197,8 @@ export function ChatInterface({
         <div className="flex min-h-full flex-col">
           {loadingThread ? (
             <div className="flex flex-1 items-center justify-center">
-              <div className="flex flex-col items-center gap-3 text-c3-text-muted">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-c3-text-muted border-t-c3-accent" />
+              <div className="flex flex-col items-center gap-3 text-bot-text-muted">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-bot-text-muted border-t-bot-accent" />
                 <span className="text-xs">Loading conversation...</span>
               </div>
             </div>
@@ -206,7 +206,7 @@ export function ChatInterface({
             <WelcomeScreen onSuggestion={handleSuggestion} />
           ) : !hasMessages && isExistingThread ? (
             <div className="flex flex-1 items-center justify-center">
-              <span className="text-sm text-c3-text-muted">
+              <span className="text-sm text-bot-text-muted">
                 No messages in this conversation
               </span>
             </div>
@@ -230,8 +230,8 @@ export function ChatInterface({
               {isStreaming &&
                 messages[messages.length - 1]?.role !== "assistant" && (
                   <div className="flex gap-3 px-4 py-3">
-                    <div className="flex h-[30px] w-[30px] items-center justify-center rounded-md bg-c3-accent/15 font-mono text-[10px] font-semibold text-c3-accent">
-                      C3
+                    <div className="flex h-[30px] w-[30px] items-center justify-center rounded-md bg-bot-accent/15 font-mono text-[10px] font-semibold text-bot-accent">
+                      SH
                     </div>
                     <TypingIndicator />
                   </div>

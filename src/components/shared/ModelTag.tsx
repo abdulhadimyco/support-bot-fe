@@ -34,7 +34,7 @@ export function ModelTag({ metadata, className }: ModelTagProps) {
     <Badge
       variant="outline"
       className={cn(
-        "inline-flex items-center gap-1.5 border-c3-border bg-c3-surface2/60 font-mono text-[10px] text-c3-text-muted backdrop-blur-sm",
+        "inline-flex items-center gap-1.5 border-bot-border bg-bot-surface2/60 font-mono text-[10px] text-bot-text-muted backdrop-blur-sm",
         className,
       )}
     >
@@ -44,7 +44,7 @@ export function ModelTag({ metadata, className }: ModelTagProps) {
       {model && <span>{model}</span>}
       {inputTokens != null && (
         <>
-          <span className="text-c3-border">|</span>
+          <span className="text-border-subtle">|</span>
           <span>
             {inputTokens}→{outputTokens ?? "?"}
           </span>
@@ -52,7 +52,7 @@ export function ModelTag({ metadata, className }: ModelTagProps) {
       )}
       {elapsed && (
         <>
-          <span className="text-c3-border">|</span>
+          <span className="text-border-subtle">|</span>
           <span>{elapsed}</span>
         </>
       )}

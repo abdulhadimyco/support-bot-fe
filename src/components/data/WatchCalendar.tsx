@@ -1,134 +1,142 @@
 import { useState, useCallback } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import type { WatchCalendarData, WatchDay } from "@/lib/types";
+import type {
+  WatchCalendarData,
+  WatchCalendarDay,
+  WatchEntry,
+} from "@/lib/types";
 
 interface WatchCalendarProps {
   data: WatchCalendarData;
+  /** optional: user name to display in header */
+  userName?: string;
+  /** optional: user email to display in header */
+  userEmail?: string;
 }
 
-function fmtDur(seconds: number): string {
-  if (seconds < 60) return `${seconds}s`;
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  return m > 0 ? `${h}h ${m}m` : `${h}h`;
+/* ── helpers ───────────────────────────────────────────────── */
+
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+const DAY_HEADERS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+
+function fmtDur(s: number): string {
+  if (!s || s <= 0) return "0s";
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m`;
+  return `${Math.round(s % 60)}s`;
 }
 
 function truncate(str: string, max = 22): string {
-  return str.length > max ? str.slice(0, max) + "..." : str;
+  return str.length > max ? str.slice(0, max - 1) + "\u2026" : str;
 }
 
-const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MONTH_NAMES = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-function buildCalendarGrid(
-  year: number,
-  month: number,
-  days: Record<string, WatchDay>,
-) {
-  const firstDay = new Date(year, month - 1, 1).getDay();
-  const daysInMonth = new Date(year, month, 0).getDate();
-  const cells: Array<{ day: number | null; data: WatchDay | null }> = [];
-
-  for (let i = 0; i < firstDay; i++) cells.push({ day: null, data: null });
-  for (let d = 1; d <= daysInMonth; d++) {
-    const key = String(d);
-    cells.push({ day: d, data: days[key] ?? null });
-  }
-
-  return cells;
+/** Build index: day number → WatchCalendarDay */
+function indexDays(
+  days: WatchCalendarDay[],
+): Map<number, WatchCalendarDay> {
+  const m = new Map<number, WatchCalendarDay>();
+  for (const d of days) m.set(d.day, d);
+  return m;
 }
 
-function DayDetailDialog({
+/* ── day detail panel (inline, not a dialog) ───────────────── */
+
+function DayDetail({
   day,
+  month,
+  year,
   onClose,
 }: {
-  day: WatchDay | null;
+  day: WatchCalendarDay;
+  month: number;
+  year: number;
   onClose: () => void;
 }) {
-  if (!day) return null;
+  const MONTH_SHORT = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  ];
+  const dateLabel = `${MONTH_SHORT[month - 1]} ${day.day}, ${year}`;
+  const videos = day.top_videos ?? [];
 
   return (
-    <Dialog open={!!day} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="border-c3-border bg-c3-surface text-c3-text sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="font-mono text-sm">
-            Viewing Activity — {day.date}
-          </DialogTitle>
-        </DialogHeader>
-        <div className="space-y-2">
-          {day.entries.map((entry, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between rounded border border-c3-border bg-c3-bg px-3 py-2"
+    <div className="mt-2 rounded-lg border border-bot-border bg-bot-surface p-3">
+      <div className="mb-2.5 flex items-center justify-between font-mono text-xs">
+        <span>
+          <strong className="text-bot-text">{dateLabel}</strong>{" "}
+          <span className="text-[10px] text-bot-text-muted">
+            {videos.length} video{videos.length !== 1 ? "s" : ""} &middot;{" "}
+            {fmtDur(day.total_seconds)}
+          </span>
+        </span>
+        <button
+          onClick={onClose}
+          className="px-1 text-base text-bot-text-muted hover:text-bot-text"
+        >
+          &times;
+        </button>
+      </div>
+
+      <div className="flex flex-col gap-1">
+        {videos.map((v: WatchEntry, i: number) => (
+          <div
+            key={i}
+            className="flex items-center gap-2 rounded-md bg-bot-bg px-2 py-1.5 text-[11px]"
+          >
+            <span
+              className={cn(
+                "h-2 w-2 shrink-0 rounded-sm",
+                v.type === "live" ? "bg-[#7c3aed]" : "bg-[#2563eb]",
+              )}
+            />
+            <span
+              className="min-w-0 flex-1 truncate font-medium text-bot-text"
+              title={v.video_title}
             >
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <span
-                    className={cn(
-                      "h-2 w-2 shrink-0 rounded-full",
-                      entry.type === "live" ? "bg-c3-live" : "bg-c3-vod",
-                    )}
-                  />
-                  <span className="truncate text-xs font-medium text-c3-text">
-                    {entry.title}
-                  </span>
-                </div>
-                {entry.clientDevice && (
-                  <div className="mt-0.5 pl-4 font-mono text-[10px] text-c3-text-muted">
-                    {entry.clientDevice}
-                  </div>
-                )}
-              </div>
-              <div className="flex shrink-0 items-center gap-2 text-right">
-                <span className="font-mono text-[10px] text-c3-text-dim">
-                  {fmtDur(entry.duration)}
-                </span>
-                {entry.viewCount != null && (
-                  <span className="font-mono text-[10px] text-c3-text-muted">
-                    {entry.viewCount}x
-                  </span>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </DialogContent>
-    </Dialog>
+              {v.video_title || "Untitled video"}
+            </span>
+            <span className="shrink-0 whitespace-nowrap font-mono text-[10px] text-bot-text-muted">
+              {v.type === "live" ? "LIVE" : "VOD"} &middot;{" "}
+              {fmtDur(v.view_seconds)}
+              {v.view_count != null && v.view_count > 1 && (
+                <> &middot; {v.view_count}x</>
+              )}
+              {v.client && <> &middot; {v.client}</>}
+            </span>
+          </div>
+        ))}
+        {videos.length === 0 && (
+          <div className="py-3 text-center font-mono text-[11px] text-bot-text-muted">
+            No viewing activity
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
-export function WatchCalendar({ data: initialData }: WatchCalendarProps) {
+/* ── main component ────────────────────────────────────────── */
+
+export function WatchCalendar({
+  data: initialData,
+  userName,
+  userEmail,
+}: WatchCalendarProps) {
   const [calData, setCalData] = useState(initialData);
-  const [selectedDay, setSelectedDay] = useState<WatchDay | null>(null);
+  const [selectedDay, setSelectedDay] = useState<WatchCalendarDay | null>(null);
 
-  const { year, month, days, stats, userName, userEmail } = calData;
-  const cells = buildCalendarGrid(year, month, days);
+  const { year, month, days } = calData;
+  const dayIndex = indexDays(days);
 
-  // TODO: Replace with real API call when backend is ready
   const navigateMonth = useCallback(
     (delta: -1 | 1) => {
       let newYear = year;
@@ -140,160 +148,244 @@ export function WatchCalendar({ data: initialData }: WatchCalendarProps) {
         newMonth = 1;
         newYear++;
       }
-      // For now, just update month/year with empty days
       setCalData((prev) => ({
         ...prev,
         year: newYear,
         month: newMonth,
-        days: {},
-        stats: { totalTime: 0, activeDays: 0, vodCount: 0, vodDuration: 0, liveCount: 0, liveDuration: 0 },
+        days: [],
+        active_days: 0,
+        live_count: 0,
+        vod_count: 0,
+        live_seconds: 0,
+        vod_seconds: 0,
+        total_seconds: 0,
       }));
+      setSelectedDay(null);
     },
     [year, month],
   );
 
+  // Calendar grid
+  const firstDow = new Date(year, month - 1, 1).getDay();
+  const offset = (firstDow + 6) % 7; // Monday-start
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const today = new Date();
+  const isCurrentMonth =
+    today.getFullYear() === year && today.getMonth() + 1 === month;
+
+  const MAX_ENTRIES = 3;
+
   return (
-    <Card className="border-c3-border bg-c3-surface p-4">
+    <Card className="border-bot-border bg-bot-surface p-4">
       {/* User info */}
       <div className="mb-3">
-        <div className="font-mono text-[9px] uppercase tracking-widest text-c3-accent">
+        <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.8px] text-bot-accent">
           Viewing Activity
         </div>
-        <div className="text-sm font-semibold text-c3-text">{userName}</div>
-        <div className="font-mono text-xs text-c3-text-muted">{userEmail}</div>
+        {userName && (
+          <div className="text-[15px] font-bold text-bot-text">
+            {userName}
+          </div>
+        )}
+        {userEmail && (
+          <div className="font-mono text-xs text-bot-text-muted">{userEmail}</div>
+        )}
       </div>
 
       {/* Stats bar */}
-      <div className="mb-3 flex flex-wrap gap-2">
+      <div className="mb-3 flex flex-wrap gap-2.5">
         <Badge
           variant="outline"
-          className="border-c3-accent/30 font-mono text-[10px] text-c3-text-dim"
+          className="border-bot-accent/30 font-mono text-[11px] text-bot-text-muted"
         >
-          Total:{" "}
-          <strong className="ml-1 text-c3-text">{fmtDur(stats.totalTime)}</strong>
+          Total{" "}
+          <strong className="ml-1 text-bot-text">
+            {fmtDur(calData.total_seconds)}
+          </strong>
         </Badge>
         <Badge
           variant="outline"
-          className="border-c3-live/30 font-mono text-[10px] text-c3-text-dim"
+          className="border-bot-border font-mono text-[11px] text-bot-text-muted"
         >
-          Live: <strong className="ml-1 text-c3-text">{stats.liveCount}</strong>{" "}
-          ({fmtDur(stats.liveDuration)})
+          Days{" "}
+          <strong className="ml-1 text-bot-text">
+            {calData.active_days}
+          </strong>
         </Badge>
         <Badge
           variant="outline"
-          className="border-c3-vod/30 font-mono text-[10px] text-c3-text-dim"
+          className="border-bot-border font-mono text-[11px] text-bot-text-muted"
         >
-          VOD: <strong className="ml-1 text-c3-text">{stats.vodCount}</strong> (
-          {fmtDur(stats.vodDuration)})
+          &#9654; VOD{" "}
+          <strong className="ml-1 text-bot-text">
+            {calData.vod_count}
+          </strong>{" "}
+          &middot;{" "}
+          <strong className="text-bot-text">
+            {fmtDur(calData.vod_seconds)}
+          </strong>
         </Badge>
         <Badge
           variant="outline"
-          className="border-c3-border font-mono text-[10px] text-c3-text-dim"
+          className="border-bot-border font-mono text-[11px] text-bot-text-muted"
         >
-          Active Days:{" "}
-          <strong className="ml-1 text-c3-text">{stats.activeDays}</strong>
+          &#9673; Live{" "}
+          <strong className="ml-1 text-bot-text">
+            {calData.live_count}
+          </strong>{" "}
+          &middot;{" "}
+          <strong className="text-bot-text">
+            {fmtDur(calData.live_seconds)}
+          </strong>
         </Badge>
       </div>
 
-      {/* Navigation */}
-      <div className="mb-2 flex items-center justify-between">
+      {/* Month navigation */}
+      <div className="mb-2 flex items-center justify-center gap-3">
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 text-c3-text-muted hover:text-c3-text"
+          className="h-7 w-7 rounded-md border border-bot-border text-bot-text-muted hover:border-bot-text-muted hover:text-bot-text"
           onClick={() => navigateMonth(-1)}
-          disabled={false}
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        <span className="font-mono text-xs font-medium text-c3-text">
+        <span className="min-w-[140px] text-center font-mono text-[13px] font-semibold text-bot-text">
           {MONTH_NAMES[month - 1]} {year}
         </span>
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 text-c3-text-muted hover:text-c3-text"
+          className="h-7 w-7 rounded-md border border-bot-border text-bot-text-muted hover:border-bot-text-muted hover:text-bot-text"
           onClick={() => navigateMonth(1)}
-          disabled={false}
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-px rounded border border-c3-border bg-c3-border">
+      <div
+        className="grid grid-cols-7 overflow-hidden rounded-lg border border-bot-border"
+        style={{ minWidth: 560 }}
+      >
         {/* Day headers */}
-        {DAYS_OF_WEEK.map((d) => (
+        {DAY_HEADERS.map((d) => (
           <div
             key={d}
-            className="bg-c3-surface2 py-1 text-center font-mono text-[9px] uppercase tracking-wider text-c3-text-muted"
+            className="border-b border-bot-border bg-bot-surface2 py-1.5 text-center font-mono text-[10px] uppercase tracking-[0.5px] text-bot-text-muted"
           >
             {d}
           </div>
         ))}
 
-        {/* Day cells */}
-        {cells.map((cell, i) => (
+        {/* Empty offset cells */}
+        {Array.from({ length: offset }).map((_, i) => (
           <div
-            key={i}
-            className={cn(
-              "min-h-[80px] bg-c3-surface p-1",
-              cell.day === null && "bg-c3-bg/50",
-              cell.data &&
-                cell.data.entries.length > 0 &&
-                "cursor-pointer hover:bg-c3-surface2",
-            )}
-            onClick={() => {
-              if (cell.data && cell.data.entries.length > 0)
-                setSelectedDay(cell.data);
-            }}
-          >
-            {cell.day !== null && (
-              <>
-                <div className="mb-0.5 font-mono text-[10px] text-c3-text-muted">
-                  {cell.day}
-                </div>
-                {cell.data?.entries.slice(0, 2).map((entry, j) => (
-                  <div
-                    key={j}
-                    className={cn(
-                      "mb-0.5 rounded px-1 py-0.5 text-[9px] leading-tight text-white",
-                      entry.type === "live"
-                        ? "bg-c3-live/80"
-                        : "bg-c3-vod/80",
-                    )}
-                  >
-                    {truncate(entry.title)} · {fmtDur(entry.duration)}
-                  </div>
-                ))}
-                {cell.data && cell.data.entries.length > 2 && (
-                  <div className="px-1 font-mono text-[8px] text-c3-text-muted">
-                    +{cell.data.entries.length - 2} more
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+            key={`empty-${i}`}
+            className="min-h-[80px] border-b border-r border-bot-border bg-bot-surface opacity-40"
+          />
         ))}
+
+        {/* Day cells */}
+        {Array.from({ length: daysInMonth }).map((_, idx) => {
+          const day = idx + 1;
+          const info = dayIndex.get(day);
+          const hasData = info && info.top_videos && info.top_videos.length > 0;
+          const isToday = isCurrentMonth && today.getDate() === day;
+          const isSelected = selectedDay?.day === day;
+          const cellIndex = offset + idx;
+
+          return (
+            <div
+              key={day}
+              onClick={() => {
+                if (hasData) setSelectedDay(isSelected ? null : info);
+              }}
+              className={cn(
+                "min-h-[80px] overflow-hidden border-b border-r border-bot-border bg-bot-bg p-1 text-[10px] transition-colors",
+                (cellIndex + 1) % 7 === 0 && "border-r-0",
+                hasData && "cursor-pointer hover:bg-bot-surface2",
+                isSelected && "bg-bot-surface2 shadow-[inset_0_0_0_2px_var(--color-accent)]",
+              )}
+            >
+              <div
+                className={cn(
+                  "mb-0.5 font-mono text-[11px] text-bot-text-muted",
+                  isToday && "font-bold text-bot-accent",
+                )}
+              >
+                {day}
+              </div>
+
+              {info?.top_videos?.slice(0, MAX_ENTRIES).map((v, j) => (
+                <div
+                  key={j}
+                  className={cn(
+                    "mb-0.5 overflow-hidden rounded px-1 py-0.5 text-[9px] font-semibold leading-tight text-white",
+                    v.type === "live" ? "bg-[#7c3aed]" : "bg-[#2563eb]",
+                  )}
+                  title={v.video_title}
+                >
+                  <div className="truncate">{truncate(v.video_title)}</div>
+                  {v.view_seconds > 0 && (
+                    <div className="text-[8px] font-normal opacity-80">
+                      {fmtDur(v.view_seconds)}
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {info && info.total_entries > MAX_ENTRIES && (
+                <div className="px-1 font-mono text-[9px] text-bot-text-muted">
+                  +{info.total_entries - MAX_ENTRIES} more &middot;{" "}
+                  {fmtDur(
+                    info.total_seconds -
+                      (info.top_videos?.slice(0, MAX_ENTRIES) ?? []).reduce(
+                        (s, v) => s + (v.view_seconds || 0),
+                        0,
+                      ),
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {/* Trailing empty cells */}
+        {(() => {
+          const total = offset + daysInMonth;
+          const rem = total % 7;
+          if (rem === 0) return null;
+          return Array.from({ length: 7 - rem }).map((_, i) => (
+            <div
+              key={`trail-${i}`}
+              className="min-h-[80px] border-b border-r border-bot-border bg-bot-surface opacity-40"
+            />
+          ));
+        })()}
       </div>
 
       {/* Legend */}
-      <div className="mt-2 flex items-center gap-4 font-mono text-[10px] text-c3-text-muted">
-        <div className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-c3-live" />
+      <div className="mt-2.5 flex items-center justify-center gap-4 font-mono text-[11px] text-bot-text-muted">
+        <span className="flex items-center gap-1">
+          <span className="inline-block h-2.5 w-2.5 rounded-sm bg-[#7c3aed]" />
           Live
-        </div>
-        <div className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-c3-vod" />
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="inline-block h-2.5 w-2.5 rounded-sm bg-[#2563eb]" />
           VOD
-        </div>
+        </span>
       </div>
 
-      {/* Day detail dialog */}
-      <DayDetailDialog
-        day={selectedDay}
-        onClose={() => setSelectedDay(null)}
-      />
+      {/* Day detail (inline, below calendar) */}
+      {selectedDay && (
+        <DayDetail
+          day={selectedDay}
+          month={month}
+          year={year}
+          onClose={() => setSelectedDay(null)}
+        />
+      )}
     </Card>
   );
 }

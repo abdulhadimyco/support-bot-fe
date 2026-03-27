@@ -81,82 +81,146 @@ export interface ReportData {
   technicalSummary: string;
 }
 
-// Tool result types rendered in chat
+// ── Tool result types (match backend snake_case response shapes) ──
+
 export interface UserProfile {
-  user_id: string;
-  name: string;
-  username?: string;
-  email: string;
-  emailVerified?: boolean;
-  phone?: string;
-  phoneVerified?: boolean;
-  country?: string;
-  city?: string;
-  gender?: string;
-  role?: string;
-  signupDate?: string;
-  deleted?: boolean;
-}
-
-export interface PaymentEvent {
-  id: string;
-  amount: number;
-  currency: string;
-  status: string;
-  date: string;
-  gateway?: string;
-  plan?: string;
   source?: string;
-  subscriptionStatus?: string;
-  licensePlans?: string[];
+  user_id: string;
+  product_user_id?: string | null;
+  email: string;
+  name: string | null;
+  username?: string | null;
+  phone?: string | null;
+  phone_verified?: boolean;
+  email_verified?: boolean;
+  country?: string | null;
+  city?: string | null;
+  gender?: string | null;
+  group?: string | null;
+  deleted_on?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
 }
 
-export interface PaymentSection {
-  licenseName: string;
+export interface Payment {
+  receipt_id?: string | null;
+  created_at?: string | null;
+  amount: number;
+  currency: string | null;
+  payment_gateway?: string | null;
   status: string;
-  expiryDate?: string;
-  renewalDate?: string;
-  payments: PaymentEvent[];
-  totalsByCurrency: Record<string, number>;
+  license_name?: string | null;
+  license_id?: string | null;
+  plan_name?: string | null;
+  product_identifier?: string | null;
+  checkout_duration?: number | null;
+  is_onetime?: boolean;
+  is_completed?: boolean;
+  is_canceled?: boolean;
+  subscription_status?: string | null;
+  subscription_expires_at?: string | null;
+  next_renewal?: string | null;
+  recurrence_interval?: string | null;
+  license_plans?: Array<{
+    name?: string;
+    price?: number;
+    currency?: string;
+    duration?: number;
+  }>;
+  source_db?: string | null;
+  pg_transaction_id?: string | null;
 }
 
-export interface WatchDay {
-  date: string;
-  entries: WatchEntry[];
+export interface LicenseTimeline {
+  license_id?: string | null;
+  license_name?: string | null;
+  license_label?: string | null;
+  payment_count: number;
+  totals_by_currency: Record<string, number>;
+  latest_subscription_status?: string | null;
+  latest_subscription_expires_at?: string | null;
+  next_renewal_from_sub?: string | null;
+  payments: Payment[];
 }
 
-export interface WatchEntry {
-  title: string;
-  duration: number;
-  type: "live" | "vod";
-  videoId?: string;
-  viewCount?: number;
-  clientDevice?: string;
-}
-
-export interface WatchCalendarData {
-  userId: string;
-  userName: string;
-  userEmail: string;
-  year: number;
-  month: number;
-  days: Record<string, WatchDay>;
-  stats: {
-    totalTime: number;
-    activeDays: number;
-    vodCount: number;
-    vodDuration: number;
-    liveCount: number;
-    liveDuration: number;
+export interface PaymentHistoryResponse {
+  source?: string;
+  user_id: string;
+  email?: string | null;
+  name?: string | null;
+  payment_count: number;
+  totals_by_currency: Record<string, number>;
+  receipts_found?: number;
+  checkouts_found?: number;
+  subscriptions_found?: number;
+  postgres_transactions_count?: number;
+  license_timelines: LicenseTimeline[];
+  payments: Payment[];
+  summary?: {
+    latest_payment_at?: string | null;
+    latest_payment_status?: string | null;
+    latest_subscription_status?: string | null;
+    active_subscription_expires_at?: string | null;
   };
 }
 
-export interface SubscriptionInfo {
-  userId: string;
-  licenseName: string;
+export interface WatchCalendarDay {
+  day: number;
+  live_count: number;
+  vod_count: number;
+  total_seconds: number;
+  total_entries: number;
+  top_videos: WatchEntry[];
+}
+
+export interface WatchEntry {
+  video_title: string;
+  type: "live" | "vod";
+  view_seconds: number;
+  view_count?: number;
+  client?: string;
+}
+
+export interface WatchCalendarData {
+  user_id: string;
+  year: number;
+  month: number;
+  active_days: number;
+  live_count: number;
+  vod_count: number;
+  live_seconds: number;
+  vod_seconds: number;
+  total_seconds: number;
+  days: WatchCalendarDay[];
+}
+
+export interface WatchCalendarDayDetail {
+  user_id: string;
+  year: number;
+  month: number;
+  day: number;
+  total_seconds: number;
+  videos: WatchEntry[];
+}
+
+export interface SubscriptionResponse {
+  source?: string;
+  user_id: string;
+  subscription_count: number;
+  active_count: number;
+  inactive_count: number;
+  subscriptions: SubscriptionItem[];
+}
+
+export interface SubscriptionItem {
   status: string;
-  plan?: string;
-  expiryDate?: string;
-  renewalDate?: string;
-  autoRenew?: boolean;
+  is_canceled?: boolean;
+  is_onetime?: boolean;
+  license_name?: string | null;
+  expires_at?: string | null;
+  created_at?: string | null;
+  plan_name?: string | null;
+  price?: number | null;
+  currency?: string | null;
+  is_completed?: boolean | null;
 }

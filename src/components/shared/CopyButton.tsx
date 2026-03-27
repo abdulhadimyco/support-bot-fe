@@ -24,7 +24,7 @@ export function CopyButton({ text, className }: CopyButtonProps) {
       className={className}
     >
       {copied ? (
-        <Check className="h-3.5 w-3.5 text-c3-accent" />
+        <Check className="h-3.5 w-3.5 text-bot-accent" />
       ) : (
         <Copy className="h-3.5 w-3.5" />
       )}

@@ -72,27 +72,27 @@ export function HistoryPage() {
     <div className="flex h-full flex-col">
       <Header />
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="border-b border-c3-border bg-c3-surface p-4">
+        <div className="border-b border-bot-border bg-bot-surface p-4">
           <div className="mb-3 flex items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-c3-text-muted hover:text-c3-text"
+              className="h-8 w-8 text-bot-text-muted hover:text-bot-text"
               onClick={() => navigate("/chat")}
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h1 className="text-lg font-semibold text-c3-text">
+            <h1 className="text-lg font-semibold text-bot-text">
               Conversation History
             </h1>
           </div>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-c3-text-muted" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-bot-text-muted" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by customer email, name, or thread summary..."
-              className="border-c3-border bg-c3-bg pl-9 text-c3-text placeholder:text-c3-text-muted focus-visible:ring-c3-accent/50"
+              className="border-bot-border bg-bot-bg pl-9 text-bot-text placeholder:text-bot-text-muted focus-visible:ring-bot-accent/50"
             />
           </div>
         </div>
@@ -100,7 +100,7 @@ export function HistoryPage() {
         <ScrollArea className="flex-1">
           <div className="space-y-1 p-4">
             {threads.length === 0 ? (
-              <div className="py-12 text-center font-mono text-sm text-c3-text-muted">
+              <div className="py-12 text-center font-mono text-sm text-bot-text-muted">
                 No conversations found
               </div>
             ) : (
@@ -108,25 +108,25 @@ export function HistoryPage() {
                 <Card
                   key={thread.id}
                   onClick={() => navigate(`/chat/${thread.id}`)}
-                  className="cursor-pointer border-c3-border bg-c3-surface p-3 transition-colors hover:bg-c3-surface2"
+                  className="cursor-pointer border-bot-border bg-bot-surface p-3 transition-colors hover:bg-bot-surface2"
                 >
                   <div className="flex items-start justify-between">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <MessageSquare className="h-3.5 w-3.5 shrink-0 text-c3-accent" />
-                        <span className="truncate text-sm font-medium text-c3-text">
+                        <MessageSquare className="h-3.5 w-3.5 shrink-0 text-bot-accent" />
+                        <span className="truncate text-sm font-medium text-bot-text">
                           {thread.summary ?? "Untitled conversation"}
                         </span>
                       </div>
                       {(thread.customerName || thread.customerEmail) && (
-                        <div className="mt-1 pl-5.5 font-mono text-xs text-c3-text-muted">
+                        <div className="mt-1 pl-5.5 font-mono text-xs text-bot-text-muted">
                           {thread.customerName ?? thread.customerEmail}
                         </div>
                       )}
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       <StatusBadge status={thread.status} />
-                      <span className="font-mono text-[10px] text-c3-text-muted">
+                      <span className="font-mono text-[10px] text-bot-text-muted">
                         {timeAgo(thread.updatedAt)}
                       </span>
                     </div>

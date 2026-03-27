@@ -22,9 +22,9 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   if (!res.ok) {
     if (res.status === 401) {
-      localStorage.removeItem("c3pa_access_token");
-      localStorage.removeItem("c3pa_refresh_token");
-      localStorage.removeItem("c3pa_agent");
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("agent");
       window.location.reload();
     }
     const body = await res.json().catch(() => ({}));

@@ -38,16 +38,16 @@ export function MessageBubble({
       <Avatar
         className={cn(
           "h-[30px] w-[30px] shrink-0 rounded-md",
-          isUser ? "bg-c3-text-muted/20" : "bg-c3-accent/15",
+          isUser ? "bg-bot-text-muted/20" : "glow-accent-box bg-bot-accent/15",
         )}
       >
         <AvatarFallback
           className={cn(
             "rounded-md font-mono text-[10px] font-semibold",
-            isUser ? "bg-c3-text-muted/20 text-c3-text-muted" : "bg-c3-accent/15 text-c3-accent",
+            isUser ? "bg-bot-text-muted/20 text-bot-text-muted" : "bg-bot-accent/15 text-bot-accent",
           )}
         >
-          {isUser ? agentInitials : "C3"}
+          {isUser ? agentInitials : "SH"}
         </AvatarFallback>
       </Avatar>
 
@@ -55,8 +55,8 @@ export function MessageBubble({
         className={cn(
           "max-w-[80%] min-w-0 rounded-lg px-3 py-2",
           isUser
-            ? "bg-c3-accent-dim text-c3-text"
-            : "bg-c3-surface text-c3-text",
+            ? "bg-bot-accent-dim text-bot-text"
+            : "bg-bot-surface text-bot-text",
         )}
       >
         {content && <StreamingText content={content} />}
@@ -66,8 +66,8 @@ export function MessageBubble({
             {invocation.state === "result" && renderToolResult
               ? renderToolResult(invocation)
               : invocation.state !== "result" && (
-                  <div className="flex items-center gap-2 font-mono text-xs text-c3-text-muted">
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-c3-accent" />
+                  <div className="flex items-center gap-2 font-mono text-xs text-bot-text-muted">
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-bot-accent" />
                     Calling {invocation.toolName}...
                   </div>
                 )}

@@ -15,9 +15,9 @@ import type { Agent, LoginResponse } from "@/lib/types";
 // In production, set VITE_AUTH_BASE_URL to the real auth URL.
 const AUTH_BASE_URL = import.meta.env.VITE_AUTH_BASE_URL ?? "/auth-api";
 
-const ACCESS_TOKEN_KEY = "c3pa_access_token";
-const REFRESH_TOKEN_KEY = "c3pa_refresh_token";
-const AGENT_KEY = "c3pa_agent";
+const ACCESS_TOKEN_KEY = "access_token";
+const REFRESH_TOKEN_KEY = "refresh_token";
+const AGENT_KEY = "agent";
 
 
 function isTokenExpired(token: string): boolean {
@@ -73,7 +73,7 @@ function setStoredAgent(agent: Agent | null) {
   }
 }
 
-// --- Map myco user to our Agent type ---
+// --- Map auth user to our Agent type ---
 
 function toAgent(user: LoginResponse["user"]): Agent {
   const name =

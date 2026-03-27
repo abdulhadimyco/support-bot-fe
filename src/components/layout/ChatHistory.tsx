@@ -36,8 +36,8 @@ interface ChatHistoryProps {
 function ThreadSkeleton() {
   return (
     <div className="flex items-center gap-2 rounded-md px-2 py-1.5 animate-pulse">
-      <div className="h-3.5 w-3.5 rounded bg-c3-surface2" />
-      <div className="h-3 flex-1 rounded bg-c3-surface2" />
+      <div className="h-3.5 w-3.5 rounded bg-bot-surface2" />
+      <div className="h-3 flex-1 rounded bg-bot-surface2" />
     </div>
   );
 }
@@ -148,12 +148,12 @@ export function ChatHistory({
   // Collapsed state
   if (!isOpen) {
     return (
-      <aside className="flex w-12 flex-col items-center border-r border-c3-border bg-c3-surface py-3">
+      <aside className="flex w-12 flex-col items-center border-r border-bot-border bg-bot-surface py-3">
         <Button
           variant="ghost"
           size="icon"
           onClick={onToggle}
-          className="h-8 w-8 text-c3-text-muted hover:text-c3-text"
+          className="h-8 w-8 text-bot-text-muted hover:text-bot-text"
         >
           <PanelLeft className="h-4 w-4" />
         </Button>
@@ -161,7 +161,7 @@ export function ChatHistory({
           variant="ghost"
           size="icon"
           onClick={onNewThread}
-          className="mt-2 h-8 w-8 text-c3-text-muted hover:text-c3-accent"
+          className="mt-2 h-8 w-8 text-bot-text-muted hover:text-bot-accent"
           title="New Thread"
         >
           <Plus className="h-4 w-4" />
@@ -171,10 +171,10 @@ export function ChatHistory({
   }
 
   return (
-    <aside className="flex w-64 shrink-0 flex-col overflow-hidden border-r border-c3-border bg-c3-surface">
+    <aside className="flex w-64 shrink-0 flex-col overflow-hidden border-r border-bot-border bg-bot-surface">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-c3-border px-3 py-2">
-        <span className="text-xs font-medium uppercase tracking-wider text-c3-text-muted">
+      <div className="flex items-center justify-between border-b border-bot-border px-3 py-2">
+        <span className="text-xs font-medium uppercase tracking-wider text-bot-text-muted">
           Chats
         </span>
         <div className="flex items-center gap-1">
@@ -182,7 +182,7 @@ export function ChatHistory({
             variant="ghost"
             size="icon"
             onClick={onNewThread}
-            className="h-7 w-7 text-c3-text-muted hover:text-c3-accent"
+            className="h-7 w-7 text-bot-text-muted hover:text-bot-accent"
             title="New Thread"
           >
             <Plus className="h-3.5 w-3.5" />
@@ -191,7 +191,7 @@ export function ChatHistory({
             variant="ghost"
             size="icon"
             onClick={onToggle}
-            className="h-7 w-7 text-c3-text-muted hover:text-c3-text"
+            className="h-7 w-7 text-bot-text-muted hover:text-bot-text"
             title="Close sidebar"
           >
             <PanelLeftClose className="h-3.5 w-3.5" />
@@ -209,7 +209,7 @@ export function ChatHistory({
               <ThreadSkeleton />
             </div>
           ) : threads.length === 0 ? (
-            <div className="py-8 text-center text-xs text-c3-text-muted">
+            <div className="py-8 text-center text-xs text-bot-text-muted">
               No conversations yet
             </div>
           ) : (
@@ -219,8 +219,8 @@ export function ChatHistory({
                   key={thread.id}
                   className={`group flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors ${
                     activeThreadId === thread.id
-                      ? "bg-c3-surface2 text-c3-text"
-                      : "text-c3-text-dim hover:bg-c3-surface2 hover:text-c3-text"
+                      ? "bg-bot-surface2 text-bot-text"
+                      : "text-bot-text-dim hover:bg-bot-surface2 hover:text-bot-text"
                   }`}
                 >
                   {editingId === thread.id ? (
@@ -232,18 +232,18 @@ export function ChatHistory({
                           if (e.key === "Enter") confirmRename();
                           if (e.key === "Escape") cancelRename();
                         }}
-                        className="h-6 border-c3-accent/50 bg-c3-bg px-1.5 text-xs text-c3-text focus-visible:ring-c3-accent/30"
+                        className="h-6 border-bot-accent/50 bg-bot-bg px-1.5 text-xs text-bot-text focus-visible:ring-bot-accent/30"
                         autoFocus
                       />
                       <button
                         onClick={confirmRename}
-                        className="shrink-0 text-c3-accent hover:text-c3-accent/80"
+                        className="shrink-0 text-bot-accent hover:text-bot-accent/80"
                       >
                         <Check className="h-3.5 w-3.5" />
                       </button>
                       <button
                         onClick={cancelRename}
-                        className="shrink-0 text-c3-text-muted hover:text-c3-text"
+                        className="shrink-0 text-bot-text-muted hover:text-bot-text"
                       >
                         <X className="h-3.5 w-3.5" />
                       </button>
@@ -254,32 +254,32 @@ export function ChatHistory({
                         onClick={() => navigate(`/chat/${thread.id}`)}
                         className="flex min-w-0 flex-1 items-center gap-2"
                       >
-                        <MessageSquare className="h-3.5 w-3.5 shrink-0 text-c3-text-muted" />
+                        <MessageSquare className="h-3.5 w-3.5 shrink-0 text-bot-text-muted" />
                         <span className="truncate text-xs">
                           {thread.summary ?? "Untitled"}
                         </span>
                       </button>
-                      <span className="shrink-0 font-mono text-[9px] text-c3-text-muted opacity-0 group-hover:opacity-100">
+                      <span className="shrink-0 font-mono text-[9px] text-bot-text-muted opacity-0 group-hover:opacity-100">
                         {timeAgo(thread.updatedAt)}
                       </span>
                       <DropdownMenu>
-                        <DropdownMenuTrigger className="shrink-0 rounded p-0.5 text-c3-text-muted opacity-0 hover:text-c3-text group-hover:opacity-100">
+                        <DropdownMenuTrigger className="shrink-0 rounded p-0.5 text-bot-text-muted opacity-0 hover:text-bot-text group-hover:opacity-100">
                             <MoreHorizontal className="h-3.5 w-3.5" />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                           align="end"
-                          className="border-c3-border bg-c3-surface"
+                          className="border-bot-border bg-bot-surface"
                         >
                           <DropdownMenuItem
                             onClick={() => startRename(thread)}
-                            className="text-xs text-c3-text-dim hover:text-c3-text focus:bg-c3-surface2 focus:text-c3-text"
+                            className="text-xs text-bot-text-dim hover:text-bot-text focus:bg-bot-surface2 focus:text-bot-text"
                           >
                             <Pencil className="mr-2 h-3 w-3" />
                             Rename
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => deleteThread(thread.id)}
-                            className="text-xs text-c3-danger focus:bg-c3-danger/10 focus:text-c3-danger"
+                            className="text-xs text-bot-danger focus:bg-bot-danger/10 focus:text-bot-danger"
                           >
                             <Trash2 className="mr-2 h-3 w-3" />
                             Delete

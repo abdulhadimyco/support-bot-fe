@@ -28,8 +28,8 @@ export function ReportPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-full items-center justify-center bg-c3-bg">
-        <span className="font-mono text-sm text-c3-text-muted">
+      <div className="flex min-h-full items-center justify-center bg-bot-bg">
+        <span className="font-mono text-sm text-bot-text-muted">
           Loading report...
         </span>
       </div>
@@ -38,9 +38,9 @@ export function ReportPage() {
 
   if (error || !report) {
     return (
-      <div className="flex min-h-full items-center justify-center bg-c3-bg">
-        <Card className="border-c3-danger/30 bg-c3-surface p-6">
-          <p className="font-mono text-sm text-c3-danger">
+      <div className="flex min-h-full items-center justify-center bg-bot-bg">
+        <Card className="border-bot-danger/30 bg-bot-surface p-6">
+          <p className="font-mono text-sm text-bot-danger">
             {error || "Report not found"}
           </p>
         </Card>
@@ -62,14 +62,14 @@ export function ReportPage() {
   }
 
   return (
-    <div className="min-h-full bg-c3-bg">
-      <header className="sticky top-0 z-10 border-b border-c3-border bg-c3-surface px-6 py-4 print:hidden">
+    <div className="min-h-full bg-bot-bg">
+      <header className="sticky top-0 z-10 border-b border-bot-border bg-bot-surface px-6 py-4 print:hidden">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-semibold text-c3-text">
+            <h1 className="text-lg font-semibold text-bot-text">
               {reportData.title}
             </h1>
-            <span className="font-mono text-xs text-c3-text-muted">
+            <span className="font-mono text-xs text-bot-text-muted">
               Created{" "}
               {new Date(report.createdAt).toLocaleDateString("en-US", {
                 month: "long",
@@ -83,7 +83,7 @@ export function ReportPage() {
               variant="outline"
               size="sm"
               onClick={handlePrint}
-              className="border-c3-border text-c3-text-dim hover:bg-c3-surface2"
+              className="border-bot-border text-bot-text-dim hover:bg-bot-surface2"
             >
               <Printer className="mr-1.5 h-3.5 w-3.5" />
               Print
@@ -91,7 +91,7 @@ export function ReportPage() {
             <Button
               size="sm"
               onClick={handleDownloadPdf}
-              className="bg-c3-accent text-c3-bg hover:bg-c3-accent/90"
+              className="bg-bot-accent text-bg-base hover:bg-bot-accent/90"
             >
               <Download className="mr-1.5 h-3.5 w-3.5" />
               PDF
@@ -115,27 +115,27 @@ export function ReportPage() {
           .map((section) => (
             <Card
               key={section.title}
-              className="border-c3-border bg-c3-surface"
+              className="border-bot-border bg-bot-surface"
             >
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-sm">
                   <Badge
                     variant="outline"
-                    className="border-c3-accent/30 font-mono text-[9px] uppercase tracking-widest text-c3-accent"
+                    className="border-bot-accent/30 font-mono text-[9px] uppercase tracking-widest text-bot-accent"
                   >
                     {section.title}
                   </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-sm leading-relaxed text-c3-text-dim whitespace-pre-wrap">
+                <div className="text-sm leading-relaxed text-bot-text-dim whitespace-pre-wrap">
                   {section.content}
                 </div>
               </CardContent>
             </Card>
           ))}
 
-        <div className="py-4 text-center font-mono text-[10px] text-c3-text-muted">
+        <div className="py-4 text-center font-mono text-[10px] text-bot-text-muted">
           Expires{" "}
           {new Date(report.expiresAt).toLocaleDateString("en-US", {
             month: "long",
