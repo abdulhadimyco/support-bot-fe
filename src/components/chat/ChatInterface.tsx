@@ -159,19 +159,20 @@ export function ChatInterface({
 
   const handleSend = useCallback(
     async (text: string) => {
-      if (!text.trim()) return;
+      if (!text.trim() && !attachment) return;
+      const currentAttachment = attachment;
       setInput("");
       setAttachment(null);
 
       if (!threadIdRef.current) {
         try {
           const res = await api.post<{ data: Thread }>("/api/threads", {
-            title: text.trim().slice(0, 100),
+            title: text.trim().slice(0, 100) || "Screenshot analysis",
           });
           const newThreadId = res.data.id;
           threadIdRef.current = newThreadId;
           isNewThreadRef.current = true;
-          onThreadCreated?.(newThreadId, text.trim().slice(0, 80));
+          onThreadCreated?.(newThreadId, text.trim().slice(0, 80) || "Screenshot analysis");
         } catch {
           toast.error("Failed to create conversation");
           return;
@@ -179,9 +180,34 @@ export function ChatInterface({
       }
 
       userAtBottomRef.current = true;
-      await sendMessage({ text: text.trim() });
+
+      // Convert file attachment to data URL for the AI SDK
+      const files: Array<{ type: "file"; mediaType: string; url: string; filename?: string }> = [];
+      if (currentAttachment) {
+        try {
+          const dataUrl = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(currentAttachment);
+          });
+          files.push({
+            type: "file",
+            mediaType: currentAttachment.type || "image/png",
+            url: dataUrl,
+            filename: currentAttachment.name,
+          });
+        } catch {
+          toast.error("Failed to read file");
+        }
+      }
+
+      await sendMessage({
+        text: text.trim() || "(attached file)",
+        ...(files.length > 0 ? { files } : {}),
+      });
     },
-    [sendMessage, onThreadCreated],
+    [sendMessage, onThreadCreated, attachment],
   );
 
   const handleSuggestion = useCallback(

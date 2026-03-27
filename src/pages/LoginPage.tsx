@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, useMemo, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,6 +6,25 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import DarkVeil from "@/components/DarkVeil";
+import LightRays from "@/components/LightRays";
+import Hyperspeed from "@/components/Hyperspeed";
+import { hyperspeedPresets } from "@/components/HyperSpeedPresets";
+import { AuroraBackground } from "@/components/ui/aurora-background";
+
+const BACKGROUNDS = ["aurora", "darkveil", "lightrays", "hyperspeed"] as const;
+
+function RandomBackground({ pick }: { pick: (typeof BACKGROUNDS)[number] }) {
+  switch (pick) {
+    case "aurora":
+      return <AuroraBackground className="pointer-events-none absolute inset-0 !h-full" showRadialGradient><div /></AuroraBackground>;
+    case "darkveil":
+      return <div className="pointer-events-none absolute inset-0 z-0 opacity-40"><DarkVeil hueShift={150} /></div>;
+    case "lightrays":
+      return <div className="pointer-events-none absolute inset-0 z-0"><LightRays raysColor="#00ff99" raysSpeed={0.5} lightSpread={2} rayLength={3} pulsating fadeDistance={1.5} saturation={1.2} followMouse mouseInfluence={0.1} /></div>;
+    case "hyperspeed":
+      return <div className="pointer-events-none absolute inset-0 z-0"><Hyperspeed effectOptions={hyperspeedPresets.myco} /></div>;
+  }
+}
 
 export function LoginPage() {
   const { login, isLoading, token } = useAuth();
@@ -34,9 +53,15 @@ export function LoginPage() {
 
   return (
     <div className="relative flex min-h-full items-center justify-center bg-bot-bg p-4">
-      <div className="pointer-events-none absolute inset-0 z-0 opacity-40">
-        <DarkVeil hueShift={150} />
-      </div>
+
+      {/* <AuroraBackground className="pointer-events-none absolute inset-0 !h-full" showRadialGradient><div /></AuroraBackground> */}
+
+      {/* <div className="pointer-events-none absolute inset-0 z-0 opacity-40"><DarkVeil hueShift={150} /></div> */}
+
+      {/* <div className="pointer-events-none absolute inset-0 z-0"><LightRays raysColor="#00ff99" raysSpeed={0.5} lightSpread={2} rayLength={3} pulsating fadeDistance={1.5} saturation={1.2} followMouse mouseInfluence={0.1} /></div> */}
+
+      <div className="pointer-events-none absolute inset-0 z-0"><Hyperspeed effectOptions={hyperspeedPresets.myco} /></div>
+
 
       <Card className="relative w-full max-w-sm border-bot-border/60 bg-bot-surface shadow-[0_0_40px_-12px_rgba(0,229,160,0.12)]">
         <CardHeader className="items-center gap-1 pb-4 text-center">

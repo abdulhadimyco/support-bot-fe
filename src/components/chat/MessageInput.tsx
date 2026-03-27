@@ -2,6 +2,10 @@ import { useRef, type KeyboardEvent, type ChangeEvent } from "react";
 import { Send, Paperclip, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+
+const MAX_FILE_SIZE_MB = 10;
+const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 interface MessageInputProps {
   value: string;
@@ -31,6 +35,11 @@ export function MessageInput({
 
   function handleFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] ?? null;
+    if (file && file.size > MAX_FILE_SIZE) {
+      toast.error(`File too large. Max size is ${MAX_FILE_SIZE_MB}MB.`);
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
     onAttach(file);
     if (fileRef.current) fileRef.current.value = "";
   }
@@ -54,7 +63,7 @@ export function MessageInput({
         <input
           ref={fileRef}
           type="file"
-          accept="image/*"
+          accept="image/*,.pdf,.doc,.docx,.txt,.csv"
           className="hidden"
           onChange={handleFile}
         />
